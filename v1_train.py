@@ -86,7 +86,7 @@ with tf.Graph().as_default():
     sess = tf.Session(config=session_conf)
     with sess.as_default():
         cnn = TextCNN(sequence_length=x_train.shape[1],
-                      num_classes=y_train.shape[1],
+                      num_classes=len(train.class_names),
                       vocab_size=len(vocab_processor.vocabulary_),
                       embedding_size=embedding_dim,
                       embeddings=embeddings,
