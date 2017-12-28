@@ -126,8 +126,7 @@ with tf.Graph().as_default():
         train_summary_dir = os.path.join(out_dir, "summaries", "train")
         train_summary_writer = tf.summary.FileWriter(train_summary_dir, sess.graph)
 
-        # Test Summaries
-        test_summary_op = tf.summary.merge([loss_summary, acc_summary])
+        # Test Summary Writer
         test_summary_dir = os.path.join(out_dir, "summaries", "test")
         test_summary_writer = tf.summary.FileWriter(test_summary_dir, sess.graph)
 
@@ -157,22 +156,48 @@ with tf.Graph().as_default():
             print("{}: Step {}, Loss {:g}, Accuracy {:g}".format(time_str, step, loss, accuracy))
             train_summary_writer.add_summary(summaries, step)
 
-        def test_step(x_batch, y_batch, writer=None):
+        def test_step(x_test, y_test, writer=None):
             """
             Evaluates model on a test set.
             """
-            feed_dict = {
-                cnn.input_x: x_batch,
-                cnn.input_y: y_batch,
-                cnn.dropout_keep_prob: 1.0
-            }
-            step, summaries, loss, accuracy = sess.run([global_step, test_summary_op, cnn.loss,
-                                                        cnn.accuracy],
-                                                       feed_dict)
+            # TODO: Hacky workaround to test model due to OOM errors.
+            step = 0
+            size = x_test.shape[0]
+            losses = 0
+            predictions = np.empty(size)
+            for begin in range(0, size, batch_size):
+                end = begin + batch_size
+                end = min([end, size])
+
+                x_batch = np.zeros((batch_size, x_test.shape[1]))
+                x_batch[:end - begin] = x_test[begin:end]
+
+                y_batch = np.zeros(batch_size)
+                y_batch[:end - begin] = y_test[begin:end]
+
+                feed_dict = {
+                    cnn.input_x: x_batch,
+                    cnn.input_y: y_batch,
+                    cnn.dropout_keep_prob: 1.0
+                }
+                step, batch_pred, batch_loss = sess.run([global_step, cnn.predictions, cnn.loss],
+                                                        feed_dict)
+
+                predictions[begin:end] = batch_pred[:end - begin]
+                losses += batch_loss
+
+            accuracy = sklearn.metrics.accuracy_score(y_test, predictions)
+            loss = losses * batch_size / size
+
             time_str = datetime.datetime.now().isoformat()
             print("{}: Step {}, Loss {:g}, Accuracy {:g}".format(time_str, step, loss, accuracy))
+
+            summary = tf.Summary()
+            summary.value.add(tag="loss_1", simple_value=loss)
+            summary.value.add(tag="accuracy_1", simple_value=accuracy)
+
             if writer:
-                writer.add_summary(summaries, step)
+                writer.add_summary(summary, step)
             return accuracy
 
         # Generate batches
