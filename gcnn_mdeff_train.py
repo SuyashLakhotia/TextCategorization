@@ -8,8 +8,8 @@ import scipy.sparse
 import sklearn.metrics
 
 import data
-from text_gcnn import GraphCNN
-from gcnn import graph, coarsening
+from lib_gcnn import graph, coarsening
+from gcnn_mdeff import GraphCNN
 
 
 # Parameters
