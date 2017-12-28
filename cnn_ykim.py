@@ -6,6 +6,8 @@ class TextCNN(object):
     """
     A CNN architecture for text classification. Composed of an embedding layer, followed by parallel 
     convolutional + max-pooling layer(s) and a softmax layer.
+
+    Paper: https://arxiv.org/abs/1408.5882
     """
 
     def __init__(self, sequence_length, num_classes, vocab_size, embedding_size, embeddings, filter_heights,

@@ -14,6 +14,8 @@ class GraphCNN(object):
     K = List of polynomial orders i.e. filter sizes (per filter)
     F = List of no. of features (per filter)
     p = List of pooling sizes (per filter)
+
+    Paper: https://arxiv.org/abs/1606.09375
     """
 
     def __init__(self, L, K, F, p, batch_size, num_vertices, num_classes, l2_reg_lambda):
