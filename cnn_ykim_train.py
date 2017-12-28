@@ -4,6 +4,7 @@ import datetime
 
 import numpy as np
 import tensorflow as tf
+import sklearn.metrics
 
 import data
 from cnn_ykim import TextCNN
