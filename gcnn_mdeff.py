@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 import scipy
 
-from gcnn.graph import rescale_L
+from lib_gcnn.graph import rescale_L
 
 
 class GraphCNN(object):
