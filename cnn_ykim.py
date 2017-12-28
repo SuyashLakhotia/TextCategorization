@@ -24,9 +24,9 @@ class TextCNN(object):
         with tf.name_scope("embedding"):
             if embeddings is None:
                 self.embedding_mat = tf.Variable(tf.random_uniform([vocab_size, embedding_size], -1.0, 1.0),
-                                                 name="W")
+                                                 name="embeddings")
             else:
-                self.embedding_mat = tf.Variable(embeddings, trainable=True, name="W")
+                self.embedding_mat = tf.Variable(embeddings, name="embeddings")
             self.embedded_x = tf.nn.embedding_lookup(self.embedding_mat, self.input_x)
             self.embedded_x = tf.expand_dims(self.embedded_x, -1)  # expand for .conv2d
             self.embedded_x = tf.cast(self.embedded_x, tf.float32)
