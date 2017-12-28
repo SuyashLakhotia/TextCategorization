@@ -18,7 +18,7 @@ embedding_file = "data/GoogleNews-vectors-negative300.bin"  # word embeddings fi
 
 # Preprocessing parameters
 num_freq_words = 10000  # number of frequent words to retain
-seq_len = 1000  # sequence length for every pattern
+seq_len = 10000  # sequence length for every pattern
 
 # Model parameters
 filter_heights = "3,4,5"  # comma-separated filter heights
