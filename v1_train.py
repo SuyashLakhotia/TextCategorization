@@ -17,7 +17,7 @@ embedding_dim = 300  # dimensionality of embedding
 embedding_file = "data/GoogleNews-vectors-negative300.bin"  # word embeddings file
 
 # Preprocessing parameters
-num_frequent_words = 10000  # number of frequent words to retain
+num_freq_words = 10000  # number of frequent words to retain
 seq_len = 1000  # sequence length for every pattern
 
 # Model parameters
@@ -46,23 +46,12 @@ log_device_placement = False  # log placement of operations on devices
 # ==================================================
 
 print("Loading training data...")
-train = data.Text20News(subset="train")  # load data
-train.remove_short_documents(nwords=20, vocab="full")  # remove documents < 20 words in length
-train.clean_text()  # tokenize & clean text
-train.count_vectorize(stop_words="english")  # create term-document count matrix and vocabulary
-orig_vocab_size = len(train.vocab)
-train.remove_encoded_images()  # remove encoded images
-train.keep_top_words(num_frequent_words)  # keep only the top words
-train.remove_short_documents(nwords=5, vocab="selected")  # remove docs whose signal would be the zero vector
-train.generate_word2ind(maxlen=seq_len)  # transform documents to sequences of vocab indexes seq_len long
+train = data.Text20News(subset="train")
+train.preprocess_train(num_freq_words=num_freq_words, out="word2ind", maxlen=seq_len)
 
 print("Loading test data...")
 test = data.Text20News(subset="test")
-test.clean_text()
-test.count_vectorize(vocabulary=train.vocab)
-test.remove_encoded_images()
-test.remove_short_documents(nwords=5, vocab="selected")
-test.generate_word2ind(maxlen=seq_len)
+test.preprocess_test(train_vocab=train.vocab, out="word2ind", maxlen=seq_len)
 
 x_train = train.data_word2ind.astype(np.int32)
 x_test = test.data_word2ind.astype(np.int32)
@@ -77,7 +66,7 @@ print("Loading pre-trained embeddings from {}...".format(embedding_file))
 embeddings = data.load_word2vec(embedding_file, reverse_vocab, embedding_dim)
 
 print("")
-print("Vocabulary Size: {}".format(orig_vocab_size))
+print("Vocabulary Size: {}".format(train.orig_vocab_size))
 print("Vocabulary Size (Reduced): {}".format(len(train.vocab)))
 print("Max. Document Length: {}".format(seq_len))
 print("Number of Classes: {}".format(len(train.class_names)))

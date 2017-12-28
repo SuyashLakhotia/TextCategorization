@@ -20,7 +20,7 @@ embedding_dim = 300  # dimensionality of embedding
 embedding_file = "data/GoogleNews-vectors-negative300.bin"  # word embeddings file
 
 # Preprocessing parameters
-num_frequent_words = 10000  # number of frequent words to retain
+num_freq_words = 10000  # number of frequent words to retain
 
 # Feature graph parameters
 number_edges = 16
@@ -53,23 +53,12 @@ log_device_placement = False  # log placement of operations on devices
 # ==================================================
 
 print("Loading training data...")
-train = data.Text20News(subset="train")  # load data
-train.remove_short_documents(nwords=20, vocab="full")  # remove documents < 20 words in length
-train.clean_text()  # tokenize & clean text
-train.count_vectorize(stop_words="english")  # create term-document count matrix and vocabulary
-orig_vocab_size = len(train.vocab)
-train.remove_encoded_images()  # remove encoded images
-train.keep_top_words(num_frequent_words)  # keep only the top words
-train.remove_short_documents(nwords=5, vocab="selected")  # remove docs whose signal would be the zero vector
-train.tfidf_normalize(norm="l1")  # transform count matrix into a normalized tf-idf matrix
+train = data.Text20News(subset="train")
+train.preprocess_train(num_freq_words=num_freq_words, out="tfidf", norm="l1")
 
 print("Loading test data...")
 test = data.Text20News(subset="test")
-test.clean_text()
-test.count_vectorize(vocabulary=train.vocab)
-test.remove_encoded_images()
-test.remove_short_documents(nwords=5, vocab="selected")
-test.tfidf_normalize(norm="l1")
+test.preprocess_test(train_vocab=train.vocab, out="tfidf", norm="l1")
 
 x_train = train.data_tfidf.astype(np.float32)
 x_test = test.data_tfidf.astype(np.float32)
@@ -84,7 +73,7 @@ print("Loading pre-trained embeddings from {}...".format(embedding_file))
 embeddings = data.load_word2vec(embedding_file, reverse_vocab, embedding_dim)
 
 print("")
-print("Vocabulary Size: {}".format(orig_vocab_size))
+print("Vocabulary Size: {}".format(train.orig_vocab_size))
 print("Vocabulary Size (Reduced): {}".format(len(train.vocab)))
 print("Number of Classes: {}".format(len(train.class_names)))
 print("Train/Test Split: {}/{}".format(len(y_train), len(y_test)))

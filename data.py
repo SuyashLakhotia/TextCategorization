@@ -151,6 +151,31 @@ class Text20News(TextDataset):
         idx = np.argwhere(wc < freq).squeeze()
         self.keep_documents(idx)
 
+    def preprocess_train(self, num_freq_words, out, **params):
+        self.remove_short_documents(nwords=20, vocab="full")  # remove documents < 20 words in length
+        self.clean_text()  # tokenize & clean text
+        self.count_vectorize(stop_words="english")  # create term-document count matrix and vocabulary
+        self.orig_vocab_size = len(self.vocab)
+        self.remove_encoded_images()  # remove encoded images
+        self.keep_top_words(num_freq_words)  # keep only the top words
+        self.remove_short_documents(nwords=5, vocab="selected")  # remove docs whose signal would be the zero vector
+
+        if out == "tfidf":
+            self.tfidf_normalize(**params)  # transform count matrix into a normalized tf-idf matrix
+        elif out == "word2ind":
+            self.generate_word2ind(**params)  # transform documents to sequences of vocab indexes
+
+    def preprocess_test(self, train_vocab, out, **params):
+        self.clean_text()
+        self.count_vectorize(vocabulary=train_vocab)
+        self.remove_encoded_images()
+        self.remove_short_documents(nwords=5, vocab="selected")
+
+        if out == "tfidf":
+            self.tfidf_normalize(**params)
+        elif out == "word2ind":
+            self.generate_word2ind(**params)
+
 
 def one_hot_labels(num_labels, labels):
     """
