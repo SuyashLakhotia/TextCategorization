@@ -78,6 +78,11 @@ print("Vocabulary Size (Reduced): {}".format(len(train.vocab)))
 print("Number of Classes: {}".format(len(train.class_names)))
 print("Train/Test Split: {}/{}".format(len(y_train), len(y_test)))
 print("")
+print("x_train: {}".format(x_train.shape))
+print("x_test: {}".format(x_test.shape))
+print("y_train: {}".format(y_train.shape))
+print("y_test: {}".format(y_test.shape))
+print("")
 
 
 # Feature Graph
