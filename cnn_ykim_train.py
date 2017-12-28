@@ -6,7 +6,7 @@ import numpy as np
 import tensorflow as tf
 
 import data
-from text_cnn import TextCNN
+from cnn_ykim import TextCNN
 
 
 # Parameters
