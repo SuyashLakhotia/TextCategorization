@@ -4,7 +4,6 @@ import datetime
 
 import numpy as np
 import tensorflow as tf
-from tensorflow.contrib import learn
 
 import data
 from text_cnn import TextCNN
@@ -16,6 +15,10 @@ from text_cnn import TextCNN
 # Pre-trained word embeddings
 embedding_dim = 300  # dimensionality of embedding
 embedding_file = "data/GoogleNews-vectors-negative300.bin"  # word embeddings file
+
+# Preprocessing parameters
+num_frequent_words = 10000  # number of frequent words to retain
+seq_len = 1000  # sequence length for every pattern
 
 # Model parameters
 filter_heights = "3,4,5"  # comma-separated filter heights
@@ -44,37 +47,42 @@ log_device_placement = False  # log placement of operations on devices
 
 print("Loading training data...")
 train = data.Text20News(subset="train")  # load data
-train.remove_short_documents(nwords=20, vocab='full')  # remove documents < 20 words in length
+train.remove_short_documents(nwords=20, vocab="full")  # remove documents < 20 words in length
 train.clean_text()  # tokenize & clean text
-train.vectorize(stop_words="english")  # create term-document matrix and vocabulary
+train.count_vectorize(stop_words="english")  # create term-document count matrix and vocabulary
+orig_vocab_size = len(train.vocab)
 train.remove_encoded_images()  # remove encoded images
+train.keep_top_words(num_frequent_words)  # keep only the top words
+train.remove_short_documents(nwords=5, vocab="selected")  # remove docs whose signal would be the zero vector
+train.generate_word2ind(maxlen=seq_len)  # transform documents to sequences of vocab indexes seq_len long
 
 print("Loading test data...")
 test = data.Text20News(subset="test")
-test.clean_text()  # tokenize & clean text
-test.vectorize(vocabulary=train.vocab)  # create term-document matrix using train.vocab
-test.remove_encoded_images()  # remove encoded images
+test.clean_text()
+test.count_vectorize(vocabulary=train.vocab)
+test.remove_encoded_images()
+test.remove_short_documents(nwords=5, vocab="selected")
+test.generate_word2ind(maxlen=seq_len)
 
-x_train = train.documents
-x_test = test.documents
+x_train = train.data_word2ind.astype(np.int32)
+x_test = test.data_word2ind.astype(np.int32)
 y_train = train.labels
 y_test = test.labels
 
-# Transform documents to arrays of vocabulary indices
-print("Transforming documents...")
-max_document_length = max([len(x.split(" ")) for x in x_train] + [len(x.split(" ")) for x in x_test])
-vocab_processor = learn.preprocessing.VocabularyProcessor(max_document_length)
-x_train = np.array(list(vocab_processor.fit_transform(x_train)))
-x_test = np.array(list(vocab_processor.transform(x_test)))
-
-print("Vocabulary Size: {}".format(len(vocab_processor.vocabulary_)))
-print("Max. Document Length: {}".format(max_document_length))
-print("Number of Classes: {}".format(len(train.class_names)))
-print("Train/Test Split: {}/{}".format(len(y_train), len(y_test)))
+# Construct reverse lookup vocabulary.
+reverse_vocab = {w: i for i, w in enumerate(train.vocab)}
 
 # Process Google News word2vec file (in a memory-friendly way) and store relevant embeddings.
 print("Loading pre-trained embeddings from {}...".format(embedding_file))
-embeddings = data.load_word2vec(embedding_file, vocab_processor.vocabulary_, embedding_dim, tf_VP=True)
+embeddings = data.load_word2vec(embedding_file, reverse_vocab, embedding_dim)
+
+print("")
+print("Vocabulary Size: {}".format(orig_vocab_size))
+print("Vocabulary Size (Reduced): {}".format(len(train.vocab)))
+print("Max. Document Length: {}".format(seq_len))
+print("Number of Classes: {}".format(len(train.class_names)))
+print("Train/Test Split: {}/{}".format(len(y_train), len(y_test)))
+print("")
 
 
 # Training
@@ -87,7 +95,7 @@ with tf.Graph().as_default():
     with sess.as_default():
         cnn = TextCNN(sequence_length=x_train.shape[1],
                       num_classes=len(train.class_names),
-                      vocab_size=len(vocab_processor.vocabulary_),
+                      vocab_size=len(train.vocab),
                       embedding_size=embedding_dim,
                       embeddings=embeddings,
                       filter_heights=list(map(int, filter_heights.split(","))),
@@ -135,9 +143,6 @@ with tf.Graph().as_default():
         if not os.path.exists(checkpoint_dir):
             os.makedirs(checkpoint_dir)
         saver = tf.train.Saver(tf.global_variables(), max_to_keep=num_checkpoints)
-
-        # Write vocabulary
-        vocab_processor.save(os.path.join(out_dir, "vocab"))
 
         # Initialize all variables
         sess.run(tf.global_variables_initializer())

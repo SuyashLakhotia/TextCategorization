@@ -19,28 +19,32 @@ print("Loading training data...")
 train = data.Text20News(subset="train")  # load data
 train.remove_short_documents(nwords=20, vocab="full")  # remove documents < 20 words in length
 train.clean_text()  # tokenize & clean text
-train.vectorize(stop_words="english")  # create term-document matrix and vocabulary
+train.count_vectorize(stop_words="english")  # create term-document count matrix and vocabulary
+orig_vocab_size = len(train.vocab)
 train.remove_encoded_images()  # remove encoded images
 train.keep_top_words(num_frequent_words)  # keep only the top words
-train.remove_short_documents(nwords=5, vocab="selected")  # remove documents whose signal would be the zero vector
-train.normalize(norm="l1")  # normalize data
+train.remove_short_documents(nwords=5, vocab="selected")  # remove docs whose signal would be the zero vector
+train.tfidf_normalize(norm="l1")  # transform count matrix into a normalized tf-idf matrix
 
 print("Loading test data...")
 test = data.Text20News(subset="test")
-test.clean_text()  # tokenize & clean text
-test.vectorize(vocabulary=train.vocab)  # create term-document matrix using train.vocab
-test.remove_encoded_images()  # remove encoded images
-test.remove_short_documents(nwords=5, vocab="selected")  # remove documents whose signal would be the zero vector
-test.normalize(norm="l1")  # normalize data
+test.clean_text()
+test.count_vectorize(vocabulary=train.vocab)
+test.remove_encoded_images()
+test.remove_short_documents(nwords=5, vocab="selected")
+test.tfidf_normalize(norm="l1")
 
-x_train = train.data.astype(np.float32)
-x_test = test.data.astype(np.float32)
+x_train = train.data_tfidf.astype(np.float32)
+x_test = test.data_tfidf.astype(np.float32)
 y_train = train.labels
 y_test = test.labels
 
-print("Vocabulary Size: {}".format(len(train.vocab)))
+print("")
+print("Vocabulary Size: {}".format(orig_vocab_size))
+print("Vocabulary Size (Reduced): {}".format(len(train.vocab)))
 print("Number of Classes: {}".format(len(train.class_names)))
 print("Train/Test Split: {}/{}".format(len(y_train), len(y_test)))
+print("")
 
 
 # Training
