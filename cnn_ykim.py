@@ -1,4 +1,3 @@
-import numpy as np
 import tensorflow as tf
 
 
@@ -44,8 +43,10 @@ class TextCNN(object):
                                     strides=[1, 1, 1, 1],
                                     padding="VALID",
                                     name="conv")
+
                 # Apply non-linearity
                 h = tf.nn.relu(tf.nn.bias_add(conv, b), name="relu")
+
                 # Max-pooling over the outputs
                 pooled = tf.nn.max_pool(value=h,
                                         ksize=[1, sequence_length - filter_height + 1, 1, 1],
@@ -69,8 +70,10 @@ class TextCNN(object):
                                 shape=[num_features_total, num_classes],
                                 initializer=tf.contrib.layers.xavier_initializer())
             b = tf.Variable(tf.constant(0.1, shape=[num_classes]), name="b")
+
             l2_loss += tf.nn.l2_loss(W)
             l2_loss += tf.nn.l2_loss(b)
+
             self.scores = tf.nn.xw_plus_b(self.h_drop, W, b, name="scores")
             self.predictions = tf.argmax(self.scores, 1, name="predictions")
             self.predictions = tf.cast(self.predictions, tf.int32)

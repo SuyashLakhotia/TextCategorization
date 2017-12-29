@@ -113,16 +113,16 @@ with tf.Graph().as_default():
                                   log_device_placement=log_device_placement)
     sess = tf.Session(config=session_conf)
     with sess.as_default():
-        cnn = GraphCNN(L=L, K=polynomial_orders, F=num_features, p=pooling_sizes,
-                       batch_size=batch_size,
-                       num_vertices=x_train.shape[1],
-                       num_classes=len(train.class_names),
-                       l2_reg_lambda=l2_reg_lambda)
+        gcnn = GraphCNN(L=L, K=polynomial_orders, F=num_features, p=pooling_sizes,
+                        batch_size=batch_size,
+                        num_vertices=len(train.vocab),
+                        num_classes=len(train.class_names),
+                        l2_reg_lambda=l2_reg_lambda)
 
         # Define training procedure
         global_step = tf.Variable(0, name="global_step", trainable=False)
         optimizer = tf.train.AdamOptimizer(learning_rate)
-        grads_and_vars = optimizer.compute_gradients(cnn.loss)
+        grads_and_vars = optimizer.compute_gradients(gcnn.loss)
         train_op = optimizer.apply_gradients(grads_and_vars, global_step=global_step)
 
         # Keep track of gradient values and sparsity
@@ -141,8 +141,8 @@ with tf.Graph().as_default():
         print("Writing to {}\n".format(out_dir))
 
         # Summaries for loss and accuracy
-        loss_summary = tf.summary.scalar("loss", cnn.loss)
-        acc_summary = tf.summary.scalar("accuracy", cnn.accuracy)
+        loss_summary = tf.summary.scalar("loss", gcnn.loss)
+        acc_summary = tf.summary.scalar("accuracy", gcnn.accuracy)
 
         # Train Summaries
         train_summary_op = tf.summary.merge([loss_summary, acc_summary, grad_summaries_merged])
@@ -168,12 +168,12 @@ with tf.Graph().as_default():
             A single training step.
             """
             feed_dict = {
-                cnn.input_x: x_batch,
-                cnn.input_y: y_batch,
-                cnn.dropout_keep_prob: dropout_keep_prob
+                gcnn.input_x: x_batch,
+                gcnn.input_y: y_batch,
+                gcnn.dropout_keep_prob: dropout_keep_prob
             }
-            _, step, summaries, loss, accuracy = sess.run([train_op, global_step, train_summary_op, cnn.loss,
-                                                           cnn.accuracy],
+            _, step, summaries, loss, accuracy = sess.run([train_op, global_step, train_summary_op,
+                                                           gcnn.loss, gcnn.accuracy],
                                                           feed_dict)
             time_str = datetime.datetime.now().isoformat()
             print("{}: Step {}, Loss {:g}, Accuracy {:g}".format(time_str, step, loss, accuracy))
@@ -200,11 +200,11 @@ with tf.Graph().as_default():
                 y_batch[:end - begin] = y_test[begin:end]
 
                 feed_dict = {
-                    cnn.input_x: x_batch,
-                    cnn.input_y: y_batch,
-                    cnn.dropout_keep_prob: 1.0
+                    gcnn.input_x: x_batch,
+                    gcnn.input_y: y_batch,
+                    gcnn.dropout_keep_prob: 1.0
                 }
-                step, batch_pred, batch_loss = sess.run([global_step, cnn.predictions, cnn.loss],
+                step, batch_pred, batch_loss = sess.run([global_step, gcnn.predictions, gcnn.loss],
                                                         feed_dict)
 
                 predictions[begin:end] = batch_pred[:end - begin]
