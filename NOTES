@@ -1,8 +1,0 @@
-baseline:
-================
-Linear SVC Accuracy: 0.6972
-Multinomial Naive Bayes Accuracy: 0.6954
-
-cnn_ykim:
-================
-1514229132: 0.716529846
