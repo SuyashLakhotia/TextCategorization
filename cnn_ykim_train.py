@@ -22,7 +22,7 @@ num_freq_words = 10000  # number of frequent words to retain
 seq_len = 10000  # sequence length for every pattern
 
 # Model parameters
-filter_heights = "3,4,5"  # comma-separated filter heights
+filter_heights = [3, 4, 5]  # filter heights
 num_features = 128  # number of features per filter
 
 # Training parameters
@@ -93,7 +93,7 @@ with tf.Graph().as_default():
                       vocab_size=len(train.vocab),
                       embedding_size=embedding_dim,
                       embeddings=embeddings,
-                      filter_heights=list(map(int, filter_heights.split(","))),
+                      filter_heights=filter_heights,
                       num_features=num_features,
                       l2_reg_lambda=l2_reg_lambda)
 

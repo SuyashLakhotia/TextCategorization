@@ -23,7 +23,7 @@ embedding_file = "data/GoogleNews-vectors-negative300.bin"  # word embeddings fi
 num_freq_words = 10000  # number of frequent words to retain
 
 # Feature graph parameters
-number_edges = 16
+num_edges = 16
 coarsening_levels = 0
 
 # Model parameters
@@ -89,7 +89,7 @@ print("")
 # ==================================================
 
 # Construct graph
-dist, idx = graph.distance_sklearn_metrics(embeddings, k=number_edges, metric="cosine")
+dist, idx = graph.distance_sklearn_metrics(embeddings, k=num_edges, metric="cosine")
 A = graph.adjacency(dist, idx)
 A = graph.replace_random_edges(A, 0)
 
