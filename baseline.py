@@ -5,19 +5,12 @@ from sklearn.naive_bayes import MultinomialNB
 import data
 
 
-# Parameters
-# ==================================================
-
-# Preprocessing parameters
-num_freq_words = 10000  # number of frequent words to retain
-
-
 # Data Preparation
 # ==================================================
 
 print("Loading training data...")
 train = data.Text20News(subset="train")
-train.preprocess_train(num_freq_words=num_freq_words, out="tfidf", norm="l1")
+train.preprocess_train(out="tfidf", norm="l1")
 
 print("Loading test data...")
 test = data.Text20News(subset="test")

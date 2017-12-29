@@ -21,11 +21,8 @@ model_name = "cnn_ykim"
 embedding_dim = 300  # dimensionality of embedding
 embedding_file = "data/GoogleNews-vectors-negative300.bin"  # word embeddings file
 
-# Preprocessing parameters
-num_freq_words = 10000  # number of frequent words to retain
-seq_len = 10000  # sequence length for every pattern
-
 # Model parameters
+seq_len = 10000  # sequence length for every pattern
 filter_heights = [3, 4, 5]  # filter heights
 num_features = 128  # number of features per filter
 
@@ -52,7 +49,7 @@ log_device_placement = False  # log placement of operations on devices
 
 print("Loading training data...")
 train = data.Text20News(subset="train")
-train.preprocess_train(num_freq_words=num_freq_words, out="word2ind", maxlen=seq_len)
+train.preprocess_train(out="word2ind", maxlen=seq_len)
 
 print("Loading test data...")
 test = data.Text20News(subset="test")
@@ -92,7 +89,7 @@ with tf.Graph().as_default():
                                   log_device_placement=log_device_placement)
     sess = tf.Session(config=session_conf)
     with sess.as_default():
-        cnn = TextCNN(sequence_length=x_train.shape[1],
+        cnn = TextCNN(sequence_length=seq_len,
                       num_classes=len(train.class_names),
                       vocab_size=len(train.vocab),
                       embedding_size=embedding_dim,
@@ -228,8 +225,8 @@ with tf.Graph().as_default():
                 print("Saved model checkpoint to {}\n".format(path))
 
         # Output for results.csv
-        hyperparams = "{{num_freq_words: {}, seq_len: {}, filter_heights: {}, num_features: {}}}".format(
-            num_freq_words, seq_len, filter_heights, num_features)
+        hyperparams = "{{seq_len: {}, filter_heights: {}, num_features: {}}}".format(
+            seq_len, filter_heights, num_features)
         latest_git = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode().strip()
         print("\"{}\",\"{}\",\"{:.9f}\",\"{}\",\"{}\"".format(model_name, hyperparams,
                                                               max_accuracy, latest_git, timestamp))

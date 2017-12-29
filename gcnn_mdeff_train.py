@@ -23,9 +23,6 @@ model_name = "gcnn_mdeff"
 embedding_dim = 300  # dimensionality of embedding
 embedding_file = "data/GoogleNews-vectors-negative300.bin"  # word embeddings file
 
-# Preprocessing parameters
-num_freq_words = 10000  # number of frequent words to retain
-
 # Feature graph parameters
 num_edges = 16
 coarsening_levels = 0
@@ -58,7 +55,7 @@ log_device_placement = False  # log placement of operations on devices
 
 print("Loading training data...")
 train = data.Text20News(subset="train")
-train.preprocess_train(num_freq_words=num_freq_words, out="tfidf", norm="l1")
+train.preprocess_train(out="tfidf", norm="l1")
 
 print("Loading test data...")
 test = data.Text20News(subset="test")
@@ -258,8 +255,8 @@ with tf.Graph().as_default():
                 print("Saved model checkpoint to {}\n".format(path))
 
         # Output for results.csv
-        hyperparams = "{{num_freq_words: {}, num_edges: {}, coarsening_levels: {}, polynomial_orders: {}, num_features: {}, pooling_sizes: {}}}".format(
-            num_freq_words, num_edges, coarsening_levels, polynomial_orders, num_features, pooling_sizes)
+        hyperparams = "{{num_edges: {}, coarsening_levels: {}, polynomial_orders: {}, num_features: {}, pooling_sizes: {}}}".format(
+            num_edges, coarsening_levels, polynomial_orders, num_features, pooling_sizes)
         latest_git = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode().strip()
         print("\"{}\",\"{}\",\"{:.9f}\",\"{}\",\"{}\"".format(model_name, hyperparams,
                                                               max_accuracy, latest_git, timestamp))

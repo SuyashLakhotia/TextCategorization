@@ -151,13 +151,13 @@ class Text20News(TextDataset):
         idx = np.argwhere(wc < freq).squeeze()
         self.keep_documents(idx)
 
-    def preprocess_train(self, num_freq_words, out, **params):
+    def preprocess_train(self, out, **params):
         self.remove_short_documents(nwords=20, vocab="full")  # remove documents < 20 words in length
         self.clean_text()  # tokenize & clean text
         self.count_vectorize(stop_words="english")  # create term-document count matrix and vocabulary
         self.orig_vocab_size = len(self.vocab)
         self.remove_encoded_images()  # remove encoded images
-        self.keep_top_words(num_freq_words)  # keep only the top words
+        self.keep_top_words(10000)  # keep only the top 10000 words
         self.remove_short_documents(nwords=5, vocab="selected")  # remove docs whose signal would be the zero vector
 
         if out == "tfidf":
