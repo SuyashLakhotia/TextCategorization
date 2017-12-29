@@ -3,7 +3,7 @@ import tensorflow as tf
 
 class MLP(object):
     """
-    A multi-layer perceptron with flexible number of fully-connected layers followed by a softmax layer.
+    A multi-layer perceptron made up of a number of fully-connected layers followed by a softmax layer.
     """
 
     def __init__(self, vocab_size, num_classes, layers, l2_reg_lambda):

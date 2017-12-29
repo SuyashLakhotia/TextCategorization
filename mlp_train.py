@@ -88,7 +88,7 @@ with tf.Graph().as_default():
                                       num_epochs, dropout_keep_prob, out_dir)
 
         # Output for results.csv
-        hyperparams = "{{layers: {}}".format(fc_layers)
+        hyperparams = "{{layers: {}}}".format(fc_layers)
         latest_git = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode().strip()
         print("\"{}\",\"{}\",\"{:.9f}\",\"{}\",\"{}\"".format(model_name, hyperparams,
                                                               max_accuracy, latest_git, timestamp))
