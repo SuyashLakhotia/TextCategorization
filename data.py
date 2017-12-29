@@ -132,12 +132,13 @@ class TextDataset(object):
 
 
 class Text20News(TextDataset):
+    """
+    20 Newsgroups Dataset
+    http://scikit-learn.org/stable/datasets/twenty_newsgroups.html
+    """
 
     def __init__(self, subset, remove=("headers", "footers", "quotes"), categories=None,
                  shuffle=True, random_state=42):
-        """
-        http://scikit-learn.org/stable/datasets/twenty_newsgroups.html
-        """
         dataset = sklearn.datasets.fetch_20newsgroups(subset=subset, categories=categories, shuffle=shuffle,
                                                       random_state=random_state, remove=remove)
         self.documents = dataset.data
