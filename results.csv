@@ -1,1 +1,6 @@
 "Name of Model","Hyperparameters","Test Accuracy (20 Newsgroups)","Latest Commit","Timestamp"
+"Linear SVC","-","0.6972","517f09b","-"
+"Multinomial Naive Bayes","-","0.6954","517f09b","-"
+"cnn_ykim","{num_freq_words: 10000, seq_len: 10000, filter_heights: [3, 4, 5], num_features: 128}","0.718732297","cdea729","1514463570"
+"gcnn_mdeff","{num_freq_words: 10000, num_edges: 16, coarsening_levels: 0, polynomial_orders: [5], num_features: [32], pooling_sizes: [1]}","0.716529846","2773f76","1514229132"
+"gcnn_mdeff","{num_freq_words: 10000, num_edges: 16, coarsening_levels: 0, polynomial_orders: [5], num_features: [32], pooling_sizes: [1]}","0.716468573","b52742c","1514491066"
