@@ -47,7 +47,7 @@ class GraphCNN(object):
 
         # Graph convolutional + pooling layer(s)
         for i in range(len(K)):
-            with tf.name_scope("conv-maxpool-{}".format(K[i])):
+            with tf.variable_scope("conv-maxpool-{}".format(K[i])):
                 F_in = int(x.get_shape()[2])
                 W = tf.Variable(tf.truncated_normal([F_in * K[i], F[i]], stddev=0.1), name="W")
                 b = tf.Variable(tf.constant(0.1, shape=[1, 1, F[i]]), name="b")
@@ -56,11 +56,11 @@ class GraphCNN(object):
                 x = self.graph_max_pool(x, p[i])
 
         # Add dropout
-        with tf.name_scope("dropout"):
+        with tf.variable_scope("dropout"):
             self.h_drop = tf.nn.dropout(x, self.dropout_keep_prob)
 
         # Final (unnormalized) scores and predictions
-        with tf.name_scope("output"):
+        with tf.variable_scope("output"):
             B, V, F = self.h_drop.get_shape()
             B, V, F = int(B), int(V), int(F)
 
@@ -78,12 +78,12 @@ class GraphCNN(object):
             self.predictions = tf.cast(self.predictions, tf.int32)
 
         # Calculate mean cross-entropy loss
-        with tf.name_scope("loss"):
+        with tf.variable_scope("loss"):
             losses = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=self.scores, labels=self.input_y)
             self.loss = tf.reduce_mean(losses) + l2_reg_lambda * l2_loss
 
         # Calculate accuracy
-        with tf.name_scope("accuracy"):
+        with tf.variable_scope("accuracy"):
             correct_predictions = tf.equal(self.predictions, self.input_y)
             self.accuracy = tf.reduce_mean(tf.cast(correct_predictions, "float"), name="accuracy")
 
