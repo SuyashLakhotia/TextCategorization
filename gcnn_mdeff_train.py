@@ -1,6 +1,7 @@
 import os
 import time
 import datetime
+import subprocess
 
 import numpy as np
 import tensorflow as tf
@@ -10,6 +11,9 @@ import sklearn.metrics
 import data
 from lib_gcnn import graph, coarsening
 from gcnn_mdeff import GraphCNN
+
+
+model_name = "gcnn_mdeff"
 
 
 # Parameters
@@ -136,7 +140,7 @@ with tf.Graph().as_default():
 
         # Output directory for models and summaries
         timestamp = str(int(time.time()))
-        out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", "gcnn_mdeff", timestamp))
+        out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", model_name, timestamp))
         print("Writing to {}\n".format(out_dir))
 
         # Summaries for loss and accuracy
@@ -235,7 +239,7 @@ with tf.Graph().as_default():
         batches = data.batch_iter(list(zip(x_train, y_train)), batch_size, num_epochs)
 
         # Maximum test accuracy
-        max_accuracy = 0
+        max_accuracy = 0.0
 
         # Training loop
         for batch in batches:
@@ -252,3 +256,10 @@ with tf.Graph().as_default():
             if current_step % checkpoint_every == 0:
                 path = saver.save(sess, checkpoint_prefix, global_step=current_step)
                 print("Saved model checkpoint to {}\n".format(path))
+
+        # Output for results.csv
+        hyperparams = "{{num_freq_words: {}, num_edges: {}, coarsening_levels: {}, polynomial_orders: {}, num_features: {}, pooling_sizes: {}}}".format(
+            num_freq_words, num_edges, coarsening_levels, polynomial_orders, num_features, pooling_sizes)
+        latest_git = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode().strip()
+        print("\"{}\",\"{}\",\"{:.9f}\",\"{}\",\"{}\"".format(model_name, hyperparams,
+                                                              max_accuracy, latest_git, timestamp))

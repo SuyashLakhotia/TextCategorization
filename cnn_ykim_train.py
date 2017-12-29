@@ -1,6 +1,7 @@
 import os
 import time
 import datetime
+import subprocess
 
 import numpy as np
 import tensorflow as tf
@@ -8,6 +9,9 @@ import sklearn.metrics
 
 import data
 from cnn_ykim import TextCNN
+
+
+model_name = "cnn_ykim"
 
 
 # Parameters
@@ -115,7 +119,7 @@ with tf.Graph().as_default():
 
         # Output directory for models and summaries
         timestamp = str(int(time.time()))
-        out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", "cnn_ykim", timestamp))
+        out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", model_name, timestamp))
         print("Writing to {}\n".format(out_dir))
 
         # Summaries for loss and accuracy
@@ -205,7 +209,7 @@ with tf.Graph().as_default():
         batches = data.batch_iter(list(zip(x_train, y_train)), batch_size, num_epochs)
 
         # Maximum test accuracy
-        max_accuracy = 0
+        max_accuracy = 0.0
 
         # Training loop
         for batch in batches:
@@ -222,3 +226,10 @@ with tf.Graph().as_default():
             if current_step % checkpoint_every == 0:
                 path = saver.save(sess, checkpoint_prefix, global_step=current_step)
                 print("Saved model checkpoint to {}\n".format(path))
+
+        # Output for results.csv
+        hyperparams = "{{num_freq_words: {}, seq_len: {}, filter_heights: {}, num_features: {}}}".format(
+            num_freq_words, seq_len, filter_heights, num_features)
+        latest_git = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode().strip()
+        print("\"{}\",\"{}\",\"{:.9f}\",\"{}\",\"{}\"".format(model_name, hyperparams,
+                                                              max_accuracy, latest_git, timestamp))
