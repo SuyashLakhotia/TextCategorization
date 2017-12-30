@@ -7,6 +7,7 @@ class TextCNN(object):
     convolutional + max-pooling layer(s) and a softmax layer.
 
     Paper: https://arxiv.org/abs/1408.5882
+    Code: Adapted from https://github.com/dennybritz/cnn-text-classification-tf
     """
 
     def __init__(self, sequence_length, num_classes, vocab_size, embedding_size, embeddings, filter_heights,

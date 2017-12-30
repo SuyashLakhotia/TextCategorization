@@ -11,11 +11,13 @@ class GraphCNN(object):
     softmax layer.
 
     L = List of graph Laplacians.
-    K = List of polynomial orders i.e. filter sizes (per filter)
-    F = List of no. of features (per filter)
-    p = List of pooling sizes (per filter)
+    K = List of polynomial orders i.e. filter sizes (per filter).
+    F = List of no. of features (per filter).
+    P = List of pooling sizes (per filter).
+    FC = List of fully-connected layers.
 
     Paper: https://arxiv.org/abs/1606.09375
+    Code: Adapted from https://github.com/mdeff/cnn_graph
     """
 
     def __init__(self, L, K, F, p, batch_size, num_vertices, num_classes, l2_reg_lambda):

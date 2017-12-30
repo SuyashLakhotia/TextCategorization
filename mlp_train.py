@@ -17,7 +17,7 @@ model_name = "mlp"
 # ==================================================
 
 # Model parameters
-fc_layers = []  # number of units in fully-connected layers
+layers = []  # number of units in fully-connected layers
 
 # Training parameters
 learning_rate = 1e-3
@@ -72,7 +72,7 @@ with tf.Graph().as_default():
     with sess.as_default():
         mlp = MLP(vocab_size=len(train.vocab),
                   num_classes=len(train.class_names),
-                  layers=fc_layers,
+                  layers=layers,
                   l2_reg_lambda=l2_reg_lambda)
 
         # Output directory for models and summaries
@@ -88,7 +88,7 @@ with tf.Graph().as_default():
                                       num_epochs, dropout_keep_prob, out_dir)
 
         # Output for results.csv
-        hyperparams = "{{layers: {}}}".format(fc_layers)
+        hyperparams = "{{layers: {}}}".format(layers)
         latest_git = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode().strip()
         print("\"{}\",\"{}\",\"{:.9f}\",\"{}\",\"{}\"".format(model_name, hyperparams,
                                                               max_accuracy, latest_git, timestamp))
