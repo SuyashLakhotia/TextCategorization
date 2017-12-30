@@ -57,9 +57,10 @@ class TextCNN(object):
                 pooled_outputs.append(pooled)
 
         # Combine all the pooled features
-        num_features_total = num_features * len(filter_heights)
-        self.h_pool = tf.concat(pooled_outputs, 3)
-        self.h_pool_flat = tf.reshape(self.h_pool, [-1, num_features_total])
+        with tf.variable_scope("reshape"):
+            num_features_total = num_features * len(filter_heights)
+            h_pool = tf.concat(pooled_outputs, 3)
+            self.h_pool_flat = tf.reshape(h_pool, [-1, num_features_total])
 
         # Add dropout
         with tf.variable_scope("dropout"):
