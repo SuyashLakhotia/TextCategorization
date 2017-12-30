@@ -5,5 +5,7 @@
 "20 Newsgroups","gcnn_mdeff","{num_edges: 16, coarsening_levels: 0, polynomial_orders: [5], num_features: [32], pooling_sizes: [1], fc_layers: []}","0.716529846","2773f76","1514229132"
 "20 Newsgroups","gcnn_mdeff","{num_edges: 16, coarsening_levels: 0, polynomial_orders: [5], num_features: [32], pooling_sizes: [1], fc_layers: []}","0.716468573","b52742c","1514491066"
 "20 Newsgroups","mlp","{layers: []}","0.709252954","3f55b77","1514560051"
+"20 Newsgroups","mlp","{layers: [100]}","0.728211658","0ddb83d","1514615785"
 "20 Newsgroups","mlp","{layers: [360]}","0.730758347","0ddb83d","1514562275"
+"20 Newsgroups","mlp","{layers: [2500]}","0.728211658","0ddb83d","1514598334"
 "20 Newsgroups","mlp","{layers: [2500, 500]}","0.700905490","0ddb83d","1514566061"
