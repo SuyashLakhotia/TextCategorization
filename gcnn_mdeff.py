@@ -38,11 +38,11 @@ class GraphCNN(object):
         # Keep the useful Laplacians only (may be zero)
         M_0 = L[0].shape[0]
         j = 0
-        self.L = []
+        L_tmp = []
         for p_i in P:
-            self.L.append(L[j])
+            L_tmp.append(L[j])
             j += int(np.log2(p_i)) if p_i > 1 else 0
-        L = self.L
+        L = L_tmp
 
         # Expand dims for convolution operation
         x = tf.expand_dims(self.input_x, 2)  # B x V x F=1
@@ -53,7 +53,7 @@ class GraphCNN(object):
                 F_in = int(x.get_shape()[2])
                 W = tf.Variable(tf.truncated_normal([F_in * K[i], F[i]], stddev=0.1), name="W")
                 b = tf.Variable(tf.constant(0.1, shape=[1, 1, F[i]]), name="b")
-                x = self.graph_conv_cheby(x, W, L[i], F[i], K[i]) + b
+                x = self.graph_conv_cheby(x, W, L[i], K[i], F[i]) + b
                 x = tf.nn.relu(x)
                 x = self.graph_max_pool(x, P[i])
 
@@ -106,15 +106,15 @@ class GraphCNN(object):
             correct_predictions = tf.equal(self.predictions, self.input_y)
             self.accuracy = tf.reduce_mean(tf.cast(correct_predictions, "float"), name="accuracy")
 
-    def graph_conv_cheby(self, x, W, L, F_out, K):
+    def graph_conv_cheby(self, x, W, L, K, F_out):
         """
         Graph convolutional operation.
         """
+        # K = Chebyshev polynomial order & support size
+        # F_out = No. of output features (per vertex)
         # B = Batch size
         # V = No. of vertices
         # F_in = No. of input features (per vertex)
-        # F_out = No. of output features (per vertex)
-        # K = Chebyshev polynomial order & support size
         B, V, F_in = x.get_shape()
         B, V, F_in = int(B), int(V), int(F_in)
 
