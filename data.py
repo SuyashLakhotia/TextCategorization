@@ -169,7 +169,6 @@ class Text20News(TextDataset):
     def preprocess_test(self, train_vocab, out, **params):
         self.clean_text()
         self.count_vectorize(vocabulary=train_vocab)
-        self.remove_encoded_images()
         self.remove_short_documents(nwords=5, vocab="selected")
 
         if out == "tfidf":
