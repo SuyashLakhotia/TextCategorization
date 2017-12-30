@@ -20,10 +20,10 @@ class GraphCNN(object):
     Code: Adapted from https://github.com/mdeff/cnn_graph
     """
 
-    def __init__(self, L, K, F, p, batch_size, num_vertices, num_classes, l2_reg_lambda):
-        assert len(L) >= len(F) == len(K) == len(p)  # verify consistency w.r.t. the no. of GCLs
-        assert np.all(np.array(p) >= 1)  # all pool sizes >= 1
-        p_log2 = np.where(np.array(p) > 1, np.log2(p), 0)
+    def __init__(self, L, K, F, P, FC, batch_size, num_vertices, num_classes, l2_reg_lambda):
+        assert len(L) >= len(F) == len(K) == len(P)  # verify consistency w.r.t. the no. of GCLs
+        assert np.all(np.array(P) >= 1)  # all pool sizes >= 1
+        p_log2 = np.where(np.array(P) > 1, np.log2(P), 0)
         assert np.all(np.mod(p_log2, 1) == 0)  # all pool sizes > 1 should be powers of 2
         assert len(L) >= 1 + np.sum(p_log2)  # enough coarsening levels for pool sizes
 
@@ -39,7 +39,7 @@ class GraphCNN(object):
         M_0 = L[0].shape[0]
         j = 0
         self.L = []
-        for p_i in p:
+        for p_i in P:
             self.L.append(L[j])
             j += int(np.log2(p_i)) if p_i > 1 else 0
         L = self.L
@@ -55,20 +55,37 @@ class GraphCNN(object):
                 b = tf.Variable(tf.constant(0.1, shape=[1, 1, F[i]]), name="b")
                 x = self.graph_conv_cheby(x, W, L[i], F[i], K[i]) + b
                 x = tf.nn.relu(x)
-                x = self.graph_max_pool(x, p[i])
+                x = self.graph_max_pool(x, P[i])
 
         # Add dropout
         with tf.variable_scope("dropout"):
-            self.h_drop = tf.nn.dropout(x, self.dropout_keep_prob)
+            x = tf.nn.dropout(x, self.dropout_keep_prob)
+
+        # Reshape x for fully-connected layers
+        with tf.variable_scope("reshape"):
+            B, V, F = x.get_shape()
+            B, V, F = int(B), int(V), int(F)
+            x = tf.reshape(x, [B, V * F])
+
+        # Add fully-connected layers (if any)
+        for _, num_units in enumerate(FC):
+            with tf.variable_scope("fc-{}".format(num_units)):
+                W = tf.get_variable("W",
+                                    shape=[x.get_shape().as_list()[1], num_units],
+                                    initializer=tf.contrib.layers.xavier_initializer())
+                b = tf.Variable(tf.constant(0.1, shape=[num_units]), name="b")
+
+                l2_loss += tf.nn.l2_loss(W)
+                l2_loss += tf.nn.l2_loss(b)
+
+                x = tf.nn.xw_plus_b(x, W, b)
+                x = tf.nn.relu(x)
+                x = tf.nn.dropout(x, self.dropout_keep_prob)
 
         # Final (unnormalized) scores and predictions
         with tf.variable_scope("output"):
-            B, V, F = self.h_drop.get_shape()
-            B, V, F = int(B), int(V), int(F)
-
-            x = tf.reshape(self.h_drop, [B, V * F])
             W = tf.get_variable("W",
-                                shape=[V * F, num_classes],
+                                shape=[x.get_shape().as_list()[1], num_classes],
                                 initializer=tf.contrib.layers.xavier_initializer())
             b = tf.Variable(tf.constant(0.1, shape=[num_classes]), name="b")
 

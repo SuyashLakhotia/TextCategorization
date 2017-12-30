@@ -30,6 +30,7 @@ coarsening_levels = 0
 polynomial_orders = [5]  # Chebyshev polynomial orders (i.e. filter sizes)
 num_features = [32]  # number of features per GCL
 pooling_sizes = [1]  # pooling sizes (1 (no pooling) or power of 2)
+fc_layers = []  # fully-connected layers
 
 # Training parameters
 learning_rate = 1e-3
@@ -91,7 +92,7 @@ A = graph.replace_random_edges(A, 0)
 
 # Compute coarsened graphs
 graphs, perm = coarsening.coarsen(A, levels=coarsening_levels, self_connections=False)
-L = [graph.laplacian(A, normalized=True) for A in graphs]
+laplacians = [graph.laplacian(A, normalized=True) for A in graphs]
 
 del embeddings, dist, idx, A, graphs  # don't need these anymore
 
@@ -109,7 +110,7 @@ with tf.Graph().as_default():
     sess = tf.Session(config=session_conf)
     with sess.as_default():
         # Init model
-        gcnn = GraphCNN(L=L, K=polynomial_orders, F=num_features, p=pooling_sizes,
+        gcnn = GraphCNN(L=laplacians, K=polynomial_orders, F=num_features, P=pooling_sizes, FC=fc_layers,
                         batch_size=batch_size,
                         num_vertices=len(train.vocab),
                         num_classes=len(train.class_names),
@@ -132,8 +133,8 @@ with tf.Graph().as_default():
                                       batch_size, num_epochs, dropout_keep_prob, out_dir)
 
         # Output for results.csv
-        hyperparams = "{{num_edges: {}, coarsening_levels: {}, polynomial_orders: {}, num_features: {}, pooling_sizes: {}}}".format(
-            num_edges, coarsening_levels, polynomial_orders, num_features, pooling_sizes)
+        hyperparams = "{{num_edges: {}, coarsening_levels: {}, polynomial_orders: {}, num_features: {}, pooling_sizes: {}, fc_layers: {}}}".format(
+            num_edges, coarsening_levels, polynomial_orders, num_features, pooling_sizes, fc_layers)
         latest_git = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode().strip()
         print("\"{}\",\"{}\",\"{:.9f}\",\"{}\",\"{}\"".format(model_name, hyperparams, max_accuracy,
                                                               latest_git, timestamp))
