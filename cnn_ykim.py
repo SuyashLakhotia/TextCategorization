@@ -34,7 +34,7 @@ class TextCNN(object):
         # Create a convolution + max-pool layer for each filter size (filter_height x embedding_size)
         pooled_outputs = []
         for i, filter_height in enumerate(filter_heights):
-            with tf.variable_scope("conv-maxpool-{}".format(filter_height)):
+            with tf.variable_scope("conv-maxpool-{}-{}".format(i, filter_height)):
                 # Convolution layer
                 filter_shape = [filter_height, embedding_size, 1, num_features]
                 W = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.1), name="W")

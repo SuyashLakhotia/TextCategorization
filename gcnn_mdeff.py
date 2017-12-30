@@ -49,7 +49,7 @@ class GraphCNN(object):
 
         # Graph convolutional + pooling layer(s)
         for i in range(len(K)):
-            with tf.variable_scope("conv-maxpool-{}".format(K[i])):
+            with tf.variable_scope("conv-maxpool-{}-{}".format(i, K[i])):
                 F_in = int(x.get_shape()[2])
                 W = tf.Variable(tf.truncated_normal([F_in * K[i], F[i]], stddev=0.1), name="W")
                 b = tf.Variable(tf.constant(0.1, shape=[1, 1, F[i]]), name="b")
@@ -68,8 +68,8 @@ class GraphCNN(object):
             x = tf.reshape(x, [B, V * F])
 
         # Add fully-connected layers (if any)
-        for _, num_units in enumerate(FC):
-            with tf.variable_scope("fc-{}".format(num_units)):
+        for i, num_units in enumerate(FC):
+            with tf.variable_scope("fc-{}-{}".format(i, num_units)):
                 W = tf.get_variable("W",
                                     shape=[x.get_shape().as_list()[1], num_units],
                                     initializer=tf.contrib.layers.xavier_initializer())

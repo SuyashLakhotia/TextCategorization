@@ -17,8 +17,8 @@ class MLP(object):
 
         # Create fully-connected layers
         x = self.input_x
-        for _, num_units in enumerate(layers):
-            with tf.variable_scope("fc-{}".format(num_units)):
+        for i, num_units in enumerate(layers):
+            with tf.variable_scope("fc-{}-{}".format(i, num_units)):
                 W = tf.get_variable("W",
                                     shape=[x.get_shape().as_list()[1], num_units],
                                     initializer=tf.contrib.layers.xavier_initializer())
