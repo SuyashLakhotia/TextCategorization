@@ -6,7 +6,7 @@ import numpy as np
 import tensorflow as tf
 
 import data
-from cnn_ykim import TextCNN
+from cnn_ykim import CNN_YKim
 from train import train_and_test
 
 

@@ -8,7 +8,7 @@ import scipy.sparse
 
 import data
 from lib_gcnn import graph, coarsening
-from gcnn_mdeff import GraphCNN
+from gcnn_mdeff import GCNN_MDeff
 from train import train_and_test
 
 
