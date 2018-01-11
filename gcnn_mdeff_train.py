@@ -110,11 +110,11 @@ with tf.Graph().as_default():
     sess = tf.Session(config=session_conf)
     with sess.as_default():
         # Init model
-        gcnn = GraphCNN(L=laplacians, K=polynomial_orders, F=num_features, P=pooling_sizes, FC=fc_layers,
-                        batch_size=batch_size,
-                        num_vertices=len(train.vocab),
-                        num_classes=len(train.class_names),
-                        l2_reg_lambda=l2_reg_lambda)
+        gcnn = GCNN_MDeff(L=laplacians, K=polynomial_orders, F=num_features, P=pooling_sizes, FC=fc_layers,
+                          batch_size=batch_size,
+                          num_vertices=len(train.vocab),
+                          num_classes=len(train.class_names),
+                          l2_reg_lambda=l2_reg_lambda)
 
         # Convert sparse matrices to arrays
         # TODO: Is there a workaround for this? Doesn't seem memory efficient.

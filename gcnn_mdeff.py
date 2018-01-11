@@ -5,7 +5,7 @@ import scipy
 from lib_gcnn.graph import rescale_L
 
 
-class GraphCNN(object):
+class GCNN_MDeff(object):
     """
     A graph CNN for text classification. Composed of graph convolutional + max-pooling layer(s) and a 
     softmax layer.

@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 
-class TextCNN(object):
+class CNN_YKim(object):
     """
     A CNN architecture for text classification. Composed of an embedding layer, followed by parallel 
     convolutional + max-pooling layer(s) and a softmax layer.
