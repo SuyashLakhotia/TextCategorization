@@ -165,6 +165,9 @@ class Text20News(TextDataset):
             self.tfidf_normalize(**params)  # transform count matrix into a normalized tf-idf matrix
         elif out == "word2ind":
             self.generate_word2ind(**params)  # transform documents to sequences of vocab indexes
+        elif out == "all":
+            self.tfidf_normalize(**params)
+            self.generate_word2ind(**params)
 
     def preprocess_test(self, train_vocab, out, **params):
         self.clean_text()
@@ -174,6 +177,9 @@ class Text20News(TextDataset):
         if out == "tfidf":
             self.tfidf_normalize(**params)
         elif out == "word2ind":
+            self.generate_word2ind(**params)
+        elif out == "all":
+            self.tfidf_normalize(**params)
             self.generate_word2ind(**params)
 
 
