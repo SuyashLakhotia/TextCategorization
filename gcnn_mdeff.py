@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 import scipy
 
-from lib_gcnn.graph import rescale_L
+import lib_gcnn.graph as graph
 
 
 class GCNN_MDeff(object):
@@ -120,7 +120,7 @@ class GCNN_MDeff(object):
 
         # Rescale Laplacian and store as a TF sparse tensor (copy to not modify the shared L)
         L = scipy.sparse.csr_matrix(L)
-        L = rescale_L(L, lmax=2)
+        L = graph.rescale_L(L, lmax=2)
         L = L.tocoo()
         indices = np.column_stack((L.row, L.col))
         L = tf.SparseTensor(indices, L.data, L.shape)
