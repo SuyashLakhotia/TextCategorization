@@ -111,10 +111,11 @@ class GCNN_Fourier(object):
         Graph convolution operation.
         """
         assert K == L.shape[0]  # artificial but useful to compute number of parameters
+
         # Fourier basis
         _, U = graph.fourier(L)
         U = tf.constant(U.T, dtype=tf.float32)
-        # Weights
+
         return self.filter_in_fourier(x, L, K, F_out, U, W)
 
     def filter_in_fourier(self, x, L, K, F_out, U, W):
@@ -122,17 +123,21 @@ class GCNN_Fourier(object):
         B, V, F_in = x.get_shape()
         B, V, F_in = int(B), int(V), int(F_in)
         x = tf.transpose(x, perm=[1, 2, 0])  # V x F_in x B
+
         # Transform to Fourier domain
         x = tf.reshape(x, [V, F_in * B])  # V x F_in*B
         x = tf.matmul(U, x)  # V x F_in*B
         x = tf.reshape(x, [V, F_in, B])  # V x F_in x B
+
         # Filter
         x = tf.matmul(W, x)  # for each feature
         x = tf.transpose(x)  # B x F_out x V
         x = tf.reshape(x, [B * F_out, V])  # B*F_out x V
+
         # Transform back to graph domain
         x = tf.matmul(x, U)  # B*F_out x V
         x = tf.reshape(x, [B, F_out, V])  # B x F_out x V
+
         return tf.transpose(x, perm=[0, 2, 1])  # B x V x F_out
 
     def graph_max_pool(self, x, p):

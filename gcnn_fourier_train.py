@@ -133,8 +133,8 @@ with tf.Graph().as_default():
                                       batch_size, num_epochs, dropout_keep_prob, out_dir)
 
         # Output for results.csv
-        hyperparams = "{{num_edges: {}, coarsening_levels: {}, polynomial_orders: {}, num_features: {}, pooling_sizes: {}, fc_layers: {}, dropout: {}}}".format(
-            num_edges, coarsening_levels, polynomial_orders, num_features, pooling_sizes, fc_layers, dropout_keep_prob)
+        hyperparams = "{{num_edges: {}, coarsening_levels: {}, filter_sizes: {}, num_features: {}, pooling_sizes: {}, fc_layers: {}, dropout: {}}}".format(
+            num_edges, coarsening_levels, filter_sizes, num_features, pooling_sizes, fc_layers, dropout_keep_prob)
         latest_git = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode().strip()
         print("\"{}\",\"{}\",\"{:.9f}\",\"{}\",\"{}\"".format(model_name, hyperparams, max_accuracy,
                                                               latest_git, timestamp))
