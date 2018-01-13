@@ -53,7 +53,7 @@ class GCNN_Fourier(object):
                 B, V, F_in = int(B), int(V), int(F_in)
                 W = tf.Variable(tf.truncated_normal([V, F[i], F_in], stddev=0.1), name="W")
                 b = tf.Variable(tf.constant(0.1, shape=[1, 1, F[i]]), name="b")
-                x = self.fourier(x, W, L[i], K[i], F[i]) + b
+                x = self.graph_conv_fourier(x, W, L[i], K[i], F[i]) + b
                 x = tf.nn.relu(x)
                 x = self.graph_max_pool(x, P[i])
 
@@ -106,7 +106,7 @@ class GCNN_Fourier(object):
             correct_predictions = tf.equal(self.predictions, self.input_y)
             self.accuracy = tf.reduce_mean(tf.cast(correct_predictions, "float"), name="accuracy")
 
-    def fourier(self, x, W, L, K, F_out):
+    def graph_conv_fourier(self, x, W, L, K, F_out):
         """
         Graph convolution operation.
         """
@@ -117,6 +117,17 @@ class GCNN_Fourier(object):
         U = tf.constant(U.T, dtype=tf.float32)
 
         return self.filter_in_fourier(x, L, K, F_out, U, W)
+
+    def graph_max_pool(self, x, p):
+        """
+        Graph max pooling operation. p must be 1 or a power of 2.
+        """
+        if p > 1:
+            x = tf.expand_dims(x, 3)   # B x V x F x 1
+            x = tf.nn.max_pool(x, ksize=[1, p, 1, 1], strides=[1, p, 1, 1], padding="SAME")
+            return tf.squeeze(x, [3])  # B x V/p x F
+        else:
+            return x
 
     def filter_in_fourier(self, x, L, K, F_out, U, W):
         # TODO: B x F x V would avoid the permutations
@@ -139,14 +150,3 @@ class GCNN_Fourier(object):
         x = tf.reshape(x, [B, F_out, V])  # B x F_out x V
 
         return tf.transpose(x, perm=[0, 2, 1])  # B x V x F_out
-
-    def graph_max_pool(self, x, p):
-        """
-        Graph max pooling operation. p must be 1 or a power of 2.
-        """
-        if p > 1:
-            x = tf.expand_dims(x, 3)   # B x V x F x 1
-            x = tf.nn.max_pool(x, ksize=[1, p, 1, 1], strides=[1, p, 1, 1], padding="SAME")
-            return tf.squeeze(x, [3])  # B x V/p x F
-        else:
-            return x
