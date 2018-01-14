@@ -62,6 +62,9 @@ x_test = test.data.astype(np.int32)
 y_train = train.labels
 y_test = test.labels
 
+# Correct sequence length if padding was overriden in data.py
+seq_len = x_train.shape[1]
+
 # Construct reverse lookup vocabulary.
 reverse_vocab = {w: i for i, w in enumerate(train.vocab)}
 
