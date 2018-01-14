@@ -166,6 +166,6 @@ with tf.Graph().as_default():
                                       batch_size, num_epochs, dropout_keep_prob, out_dir)
 
         # Output for results.csv
-        hyperparams = "{{num_edges: {}, coarsening_levels: {}, polynomial_orders: {}, num_features: {}, pooling_sizes: {}, fc_layers: {}, dropout: {}}}".format(
-            num_edges, coarsening_levels, polynomial_orders, num_features, pooling_sizes, fc_layers, dropout_keep_prob)
+        hyperparams = "{{num_edges: {}, coarsening_levels: {}, filter_sizes: {}, num_features: {}, pooling_sizes: {}, fc_layers: {}, dropout: {}}}".format(
+            num_edges, coarsening_levels, filter_sizes, num_features, pooling_sizes, fc_layers, dropout_keep_prob)
         data.print_result(dataset, model_name, max_accuracy, hyperparams, timestamp)
