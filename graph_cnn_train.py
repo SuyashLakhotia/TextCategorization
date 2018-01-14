@@ -8,11 +8,11 @@ import scipy.sparse
 
 import data
 from lib_gcnn import graph, coarsening
-from gcnn_mdeff import GCNN_MDeff
+from graph_cnn import GraphCNN
 from train import train_and_test
 
 
-model_name = "gcnn_mdeff"
+model_name = "gcnn_"
 
 
 # Parse Arguments
@@ -25,8 +25,9 @@ parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups", help="
 parser.add_argument("--num_edges", type=int, default=16, help="No. of edges in feature graph")
 parser.add_argument("--coarsening_levels", type=int, default=0, help="Coarsening levels for feature graph")
 
-parser.add_argument("--polynomial_orders", type=int, nargs="+", default=[5],
-                    help="Chebyshev polynomial orders")
+parser.add_argument("--filter_name", type=str, default="chebyshev",
+                    help="Name of graph convolutional filter")
+parser.add_argument("--filter_sizes", type=int, nargs="+", default=[5], help="Filter sizes")
 parser.add_argument("--num_features", type=int, nargs="+", default=[32], help="No. of features per GCL")
 parser.add_argument("--pooling_sizes", type=int, nargs="+", default=[1], help="Pooling sizes")
 parser.add_argument("--fc_layers", type=int, nargs="*", help="Fully-connected layers")
@@ -53,7 +54,9 @@ num_edges = args.num_edges
 coarsening_levels = args.coarsening_levels
 
 # Model parameters
-polynomial_orders = args.polynomial_orders  # Chebyshev polynomial orders (i.e. filter sizes)
+filter_name = args.filter_name  # name of graph conv filter
+model_name += filter_name  # append filter name to model name
+filter_sizes = args.filter_sizes  # filter sizes
 num_features = args.num_features  # number of features per GCL
 pooling_sizes = args.pooling_sizes  # pooling sizes (1 (no pooling) or power of 2)
 fc_layers = args.fc_layers if args.fc_layers is not None else []  # fully-connected layers
@@ -115,6 +118,10 @@ A = graph.replace_random_edges(A, 0)
 graphs, perm = coarsening.coarsen(A, levels=coarsening_levels, self_connections=False)
 laplacians = [graph.laplacian(A, normalized=True) for A in graphs]
 
+# Override filter sizes for non-param Fourier filter
+if filter_name == "fourier":
+    filter_sizes = [l.shape[0] for l in laplacians]
+
 del embeddings, dist, idx, A, graphs  # don't need these anymore
 
 # Reindex nodes to satisfy a binary tree structure
@@ -131,11 +138,16 @@ with tf.Graph().as_default():
     sess = tf.Session(config=session_conf)
     with sess.as_default():
         # Init model
-        gcnn = GCNN_MDeff(L=laplacians, K=polynomial_orders, F=num_features, P=pooling_sizes, FC=fc_layers,
-                          batch_size=batch_size,
-                          num_vertices=len(train.vocab),
-                          num_classes=len(train.class_names),
-                          l2_reg_lambda=l2_reg_lambda)
+        gcnn = GraphCNN(conv_filter=filter_name,
+                        L=laplacians,
+                        K=filter_sizes,
+                        F=num_features,
+                        P=pooling_sizes,
+                        FC=fc_layers,
+                        batch_size=batch_size,
+                        num_vertices=len(train.vocab),
+                        num_classes=len(train.class_names),
+                        l2_reg_lambda=l2_reg_lambda)
 
         # Convert sparse matrices to arrays
         # TODO: Is there a workaround for this? Doesn't seem memory efficient.

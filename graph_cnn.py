@@ -5,26 +5,32 @@ import scipy
 import lib_gcnn.graph as graph
 
 
-class GCNN_Spline(object):
+class GraphCNN(object):
     """
     A graph CNN for text classification. Composed of graph convolutional + max-pooling layer(s) and a 
     softmax layer.
 
+    conv_filter = Filter name (i.e. "chebyshev", "spline", "fourier")
     L = List of graph Laplacians.
-    K = List of filter sizes.
+    K = List of filter sizes (polynomial orders for Chebyshev, K[i] = L[i].shape[0] for non-param Fourier)
     F = List of no. of features (per filter).
     P = List of pooling sizes (per filter).
     FC = List of fully-connected layers.
 
+    Paper: https://arxiv.org/abs/1606.09375
     Code: Adapted from https://github.com/mdeff/cnn_graph
     """
 
-    def __init__(self, L, K, F, P, FC, batch_size, num_vertices, num_classes, l2_reg_lambda):
+    def __init__(self, conv_filter, L, K, F, P, FC, batch_size, num_vertices, num_classes, l2_reg_lambda):
         assert len(L) >= len(F) == len(K) == len(P)  # verify consistency w.r.t. the no. of GCLs
         assert np.all(np.array(P) >= 1)  # all pool sizes >= 1
         p_log2 = np.where(np.array(P) > 1, np.log2(P), 0)
         assert np.all(np.mod(p_log2, 1) == 0)  # all pool sizes > 1 should be powers of 2
         assert len(L) >= 1 + np.sum(p_log2)  # enough coarsening levels for pool sizes
+
+        # Retrieve convolutional filter
+        assert conv_filter == "chebyshev" or conv_filter == "spline" or conv_filter == "fourier"
+        self.graph_conv = getattr(self, "graph_conv_" + conv_filter)
 
         # Placeholders for input, output and dropout
         self.input_x = tf.placeholder(tf.float32, [batch_size, num_vertices], name="input_x")
@@ -49,11 +55,10 @@ class GCNN_Spline(object):
         # Graph convolutional + pooling layer(s)
         for i in range(len(K)):
             with tf.variable_scope("conv-maxpool-{}-{}".format(i, K[i])):
-                B, V, F_in = x.get_shape()
-                B, V, F_in = int(B), int(V), int(F_in)
-                W = tf.Variable(tf.truncated_normal([K[i], F[i] * F_in], stddev=0.1), name="W")
+                F_in = int(x.get_shape()[2])
+                W = tf.Variable(tf.truncated_normal([F_in * K[i], F[i]], stddev=0.1), name="W")
                 b = tf.Variable(tf.constant(0.1, shape=[1, 1, F[i]]), name="b")
-                x = self.graph_conv_spline(x, W, L[i], K[i], F[i]) + b
+                x = self.graph_conv(x, W, L[i], K[i], F[i]) + b
                 x = tf.nn.relu(x)
                 x = self.graph_max_pool(x, P[i])
 
@@ -106,6 +111,52 @@ class GCNN_Spline(object):
             correct_predictions = tf.equal(self.predictions, self.input_y)
             self.accuracy = tf.reduce_mean(tf.cast(correct_predictions, "float"), name="accuracy")
 
+    def graph_conv_chebyshev(self, x, W, L, K, F_out):
+        """
+        Graph convolutional operation.
+        """
+        # K = Chebyshev polynomial order & support size
+        # F_out = No. of output features (per vertex)
+        # B = Batch size
+        # V = No. of vertices
+        # F_in = No. of input features (per vertex)
+        B, V, F_in = x.get_shape()
+        B, V, F_in = int(B), int(V), int(F_in)
+
+        # Rescale Laplacian and store as a TF sparse tensor (copy to not modify the shared L)
+        L = scipy.sparse.csr_matrix(L)
+        L = graph.rescale_L(L, lmax=2)
+        L = L.tocoo()
+        indices = np.column_stack((L.row, L.col))
+        L = tf.SparseTensor(indices, L.data, L.shape)
+        L = tf.sparse_reorder(L)
+        L = tf.cast(L, tf.float32)
+
+        # Transform to Chebyshev basis
+        x0 = tf.transpose(x, perm=[1, 2, 0])     # V x F_in x B
+        x0 = tf.reshape(x0, [V, F_in * B])       # V x F_in*B
+        x = tf.expand_dims(x0, 0)                # 1 x V x F_in*B
+
+        def concat(x, x_):
+            x_ = tf.expand_dims(x_, 0)           # 1 x V x F_in*B
+            return tf.concat([x, x_], axis=0)    # K x V x F_in*B
+        if K > 1:
+            x1 = tf.sparse_tensor_dense_matmul(L, x0)
+            x = concat(x, x1)
+        for k in range(2, K):
+            x2 = 2 * tf.sparse_tensor_dense_matmul(L, x1) - x0  # V x F_in*B
+            x = concat(x, x2)
+            x0, x1 = x1, x2
+        x = tf.reshape(x, [K, V, F_in, B])       # K x V x F_in x B
+        x = tf.transpose(x, perm=[3, 1, 2, 0])   # B x V x F_in x K
+        x = tf.reshape(x, [B * V, F_in * K])     # B*V x F_in*K
+
+        # Compose linearly F_in features to get F_out features
+        x = tf.matmul(x, W)                      # B*V x F_out
+        x = tf.reshape(x, [B, V, F_out])         # B x V x F_out
+
+        return x
+
     def graph_conv_spline(self, x, W, L, K, F_out):
         """
         Graph convolution operation.
@@ -124,6 +175,18 @@ class GCNN_Spline(object):
         # Weight multiplication
         W = tf.matmul(basis, W)  # V x F_out*F_in
         W = tf.reshape(W, [V, F_out, F_in])
+
+        return self.filter_in_fourier(x, L, K, F_out, U, W)
+
+    def graph_conv_fourier(self, x, W, L, K, F_out):
+        """
+        Graph convolution operation.
+        """
+        assert K == L.shape[0]  # artificial but useful to compute number of parameters
+
+        # Fourier basis
+        _, U = graph.fourier(L)
+        U = tf.constant(U.T, dtype=tf.float32)
 
         return self.filter_in_fourier(x, L, K, F_out, U, W)
 
