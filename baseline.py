@@ -8,13 +8,8 @@ import data
 # Data Preparation
 # ==================================================
 
-print("Loading training data...")
-train = data.Text20News(subset="train")
-train.preprocess_train(out="tfidf", norm="l1")
-
-print("Loading test data...")
-test = data.Text20News(subset="test")
-test.preprocess_test(train_vocab=train.vocab, out="tfidf", norm="l1")
+dataset = "20 Newsgroups"
+train, test = data.load_dataset(dataset, out="tfidf", norm="l1")
 
 x_train = train.data_tfidf.astype(np.float32)
 x_test = test.data_tfidf.astype(np.float32)
@@ -41,10 +36,14 @@ print("")
 svm_clf = LinearSVC()
 svm_clf.fit(x_train, y_train)
 predicted = svm_clf.predict(x_test)
-print("Linear SVC Accuracy: {:.4f}".format(np.mean(predicted == y_test)))
+svm_acc = np.mean(predicted == y_test)
 
 # Multinomial Naive Bayes Classifier
 bayes_clf = MultinomialNB(alpha=0.01)
 bayes_clf.fit(x_train, y_train)
 predicted = bayes_clf.predict(x_test)
-print("Multinomial Naive Bayes Accuracy: {:.4f}".format(np.mean(predicted == y_test)))
+bayes_acc = np.mean(predicted == y_test)
+
+# Output for results.csv
+data.print_result(dataset, "Linear SVC", svm_acc)
+data.print_result(dataset, "Multinomial Naive Bayes", bayes_acc)

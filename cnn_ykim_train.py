@@ -1,6 +1,5 @@
 import os
 import time
-import subprocess
 
 import numpy as np
 import tensorflow as tf
@@ -42,13 +41,8 @@ log_device_placement = False  # log placement of operations on devices
 # Data Preparation
 # ==================================================
 
-print("Loading training data...")
-train = data.Text20News(subset="train")
-train.preprocess_train(out="word2ind", maxlen=seq_len)
-
-print("Loading test data...")
-test = data.Text20News(subset="test")
-test.preprocess_test(train_vocab=train.vocab, out="word2ind", maxlen=seq_len)
+dataset = "20 Newsgroups"
+train, test = data.load_dataset(dataset, out="word2ind", maxlen=seq_len)
 
 x_train = train.data_word2ind.astype(np.int32)
 x_test = test.data_word2ind.astype(np.int32)
@@ -105,6 +99,4 @@ with tf.Graph().as_default():
         # Output for results.csv
         hyperparams = "{{seq_len: {}, filter_heights: {}, num_features: {}}}".format(
             seq_len, filter_heights, num_features)
-        latest_git = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode().strip()
-        print("\"{}\",\"{}\",\"{:.9f}\",\"{}\",\"{}\"".format(model_name, hyperparams, max_accuracy,
-                                                              latest_git, timestamp))
+        data.print_result(dataset, model_name, max_accuracy, hyperparams, timestamp)

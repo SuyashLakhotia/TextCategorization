@@ -1,5 +1,6 @@
 import re
 import collections
+import subprocess
 
 import numpy as np
 import sklearn.datasets
@@ -133,7 +134,7 @@ class TextDataset(object):
 
 class Text20News(TextDataset):
     """
-    20 Newsgroups Dataset
+    20 Newsgroups dataset.
     http://scikit-learn.org/stable/datasets/twenty_newsgroups.html
     """
 
@@ -177,18 +178,20 @@ class Text20News(TextDataset):
             self.generate_word2ind(**params)
 
 
-def one_hot_labels(num_labels, labels):
+def load_dataset(dataset, out, **params):
     """
-    Generate one-hot encoded label arrays.
+    Returns the train & test datasets for a chosen dataset.
     """
-    labels_arr = []
-    for i in range(len(labels)):
-        label = [0 for j in range(num_labels)]
-        label[labels[i]] = 1
-        labels_arr.append(label)
-    y = np.array(labels_arr)
+    if dataset == "20 Newsgroups":
+        print("Loading training data...")
+        train = Text20News(subset="train")
+        train.preprocess_train(out=out, **params)
 
-    return y
+        print("Loading test data...")
+        test = Text20News(subset="test")
+        test.preprocess_test(train_vocab=train.vocab, out=out, **params)
+
+        return train, test
 
 
 def load_word2vec(filepath, vocabulary, embedding_dim):
@@ -243,3 +246,27 @@ def batch_iter(data, batch_size, num_epochs, shuffle=True):
                 indices.extend(np.arange(data_size))
         idx = [indices.popleft() for i in range(batch_size)]
         yield data[idx]
+
+
+def one_hot_labels(num_labels, labels):
+    """
+    Generate one-hot encoded label arrays.
+    """
+    labels_arr = []
+    for i in range(len(labels)):
+        label = [0 for j in range(num_labels)]
+        label[labels[i]] = 1
+        labels_arr.append(label)
+    y = np.array(labels_arr)
+
+    return y
+
+
+def print_result(dataset, model_name, acc, hyperparams="-", timestamp="-", notes="-"):
+    """
+    Prints the record for results.csv.
+    """
+    latest_git = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode().strip()
+    print("")
+    print("\"{}\",\"{}\",\"{}\",\"{:.9f}\",\"{}\",\"{}\"".format(dataset, model_name, hyperparams,
+                                                                 acc, notes, latest_git, timestamp))
