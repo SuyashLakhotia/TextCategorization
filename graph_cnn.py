@@ -10,7 +10,7 @@ class GraphCNN(object):
     A graph CNN for text classification. Composed of graph convolutional + max-pooling layer(s) and a 
     softmax layer.
 
-    conv_filter = Filter name (i.e. "chebyshev", "spline", "fourier")
+    filter_name = Filter name (i.e. "chebyshev", "spline", "fourier")
     L = List of graph Laplacians.
     K = List of filter sizes (polynomial orders for Chebyshev, K[i] = L[i].shape[0] for non-param Fourier)
     F = List of no. of features (per filter).
@@ -22,7 +22,7 @@ class GraphCNN(object):
     Code adapted from https://github.com/mdeff/cnn_graph
     """
 
-    def __init__(self, conv_filter, L, K, F, P, FC, batch_size, num_vertices, num_classes, l2_reg_lambda):
+    def __init__(self, filter_name, L, K, F, P, FC, batch_size, num_vertices, num_classes, l2_reg_lambda):
         assert len(L) >= len(F) == len(K) == len(P)  # verify consistency w.r.t. the no. of GCLs
         assert np.all(np.array(P) >= 1)  # all pool sizes >= 1
         p_log2 = np.where(np.array(P) > 1, np.log2(P), 0)
@@ -30,8 +30,8 @@ class GraphCNN(object):
         assert len(L) >= 1 + np.sum(p_log2)  # enough coarsening levels for pool sizes
 
         # Retrieve convolutional filter
-        assert conv_filter == "chebyshev" or conv_filter == "spline" or conv_filter == "fourier"
-        self.graph_conv = getattr(self, "graph_conv_" + conv_filter)
+        assert filter_name == "chebyshev" or filter_name == "spline" or filter_name == "fourier"
+        self.graph_conv = getattr(self, "graph_conv_" + filter_name)
 
         # Placeholders for input, output and dropout
         self.input_x = tf.placeholder(tf.float32, [batch_size, num_vertices], name="input_x")

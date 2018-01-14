@@ -138,7 +138,7 @@ with tf.Graph().as_default():
     sess = tf.Session(config=session_conf)
     with sess.as_default():
         # Init model
-        gcnn = GraphCNN(conv_filter=filter_name,
+        gcnn = GraphCNN(filter_name=filter_name,
                         L=laplacians,
                         K=filter_sizes,
                         F=num_features,
