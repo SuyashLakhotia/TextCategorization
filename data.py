@@ -332,5 +332,5 @@ def print_result(dataset, model_name, acc, hyperparams="-", timestamp="-", notes
     """
     latest_git = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode().strip()
     print("")
-    print("\"{}\",\"{}\",\"{}\",\"{:.9f}\",\"{}\",\"{}\"".format(dataset, model_name, hyperparams,
-                                                                 acc, notes, latest_git, timestamp))
+    print("\"{}\",\"{}\",\"{}\",\"{:.9f}\",\"{}\",\"{}\",\"{}\"".format(dataset, model_name, hyperparams,
+                                                                        acc, notes, latest_git, timestamp))
