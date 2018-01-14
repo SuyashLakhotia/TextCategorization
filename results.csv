@@ -20,3 +20,6 @@
 "20 Newsgroups","gcnn_mdeff","{num_edges: 16, coarsening_levels: 0, polynomial_orders: [15], num_features: [5], pooling_sizes: [1], fc_layers: [100], dropout: 1.0}","0.562528081","|V| = 1000, Truncated Normal Initialization (FC + Output)","838178d","1515666284"
 "20 Newsgroups","gcnn_fourier","{num_edges: 16, coarsening_levels: 0, filter_sizes: [10000], num_features: [32], pooling_sizes: [1], fc_layers: [], dropout: 0.5}","0.702603281","e882c29","1515749993"
 "20 Newsgroups","gcnn_spline","{num_edges: 16, coarsening_levels: 0, filter_sizes: [5], num_features: [32], pooling_sizes: [1], fc_layers: [], dropout: 0.5}","0.712790040","83a0b1b","1515787696"
+"RT Polarity","Linear SVC","-","0.753283302","-","d8cd577","-"
+"RT Polarity","Multinomial Naive Bayes","-","0.772045028","-","d8cd577","-"
+"RT Polarity","mlp","{layers: []}","0.776735460","-","d8cd577","1515920720"
