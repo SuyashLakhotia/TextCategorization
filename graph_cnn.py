@@ -17,8 +17,9 @@ class GraphCNN(object):
     P = List of pooling sizes (per filter).
     FC = List of fully-connected layers.
 
-    Paper: https://arxiv.org/abs/1606.09375
-    Code: Adapted from https://github.com/mdeff/cnn_graph
+    Paper for Chebyshev Filter: https://arxiv.org/abs/1606.09375
+    Paper for Spline Filter: https://arxiv.org/abs/1312.6203
+    Code adapted from https://github.com/mdeff/cnn_graph
     """
 
     def __init__(self, conv_filter, L, K, F, P, FC, batch_size, num_vertices, num_classes, l2_reg_lambda):
