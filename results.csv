@@ -27,3 +27,5 @@
 "RT Polarity","mlp","{layers: [1000]}","0.771106942","-","614df90","1515929343"
 "RT Polarity","cnn_ykim","{seq_len: 56, filter_heights: [3, 4, 5], num_features: 128}","0.772045028","-","614df90","1515925350"
 "RT Polarity","gcnn_chebyshev","{num_edges: 16, coarsening_levels: 0, polynomial_orders: [5], num_features: [32], pooling_sizes: [1], fc_layers: [], dropout: 0.5}","0.778611632","-","614df90","1515927316"
+"RT Polarity","gcnn_fourier","{num_edges: 16, coarsening_levels: 0, filter_sizes: [5000], num_features: [32], pooling_sizes: [1], fc_layers: [], dropout: 0.5}","0.772045028","-","75367b7","1515948046"
+"RT Polarity","gcnn_spline","{num_edges: 16, coarsening_levels: 0, filter_sizes: [5], num_features: [32], pooling_sizes: [1], fc_layers: [], dropout: 0.5}","0.782363977","-","75367b7","1515950195"
