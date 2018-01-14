@@ -91,7 +91,7 @@ with tf.Graph().as_default():
 
         # Output directory for models and summaries
         timestamp = str(int(time.time()))
-        out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", model_name, timestamp))
+        out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", dataset, model_name, timestamp))
 
         # Convert sparse matrices to arrays
         x_train = x_train.toarray()

@@ -115,7 +115,7 @@ with tf.Graph().as_default():
 
         # Output directory for models and summaries
         timestamp = str(int(time.time()))
-        out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", model_name, timestamp))
+        out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", dataset, model_name, timestamp))
 
         # Train and test model
         max_accuracy = train_and_test(sess, cnn, x_train, y_train, x_test, y_test, learning_rate, batch_size,
