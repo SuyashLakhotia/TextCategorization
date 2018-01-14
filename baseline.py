@@ -11,7 +11,8 @@ import data
 # ==================================================
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups", help="Dataset name")
+parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups",
+                    help="Dataset name (default: 20 Newsgroups)")
 
 args = parser.parse_args()
 

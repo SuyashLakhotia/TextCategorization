@@ -20,24 +20,27 @@ model_name = "gcnn_"
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups", help="Dataset name")
+parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups",
+                    help="Dataset name (default: 20 Newsgroups)")
 
-parser.add_argument("--num_edges", type=int, default=16, help="No. of edges in feature graph")
-parser.add_argument("--coarsening_levels", type=int, default=0, help="Coarsening levels for feature graph")
+parser.add_argument("--num_edges", type=int, default=16, help="No. of edges in feature graph (default: 16)")
+parser.add_argument("--coarsening_levels", type=int, default=0,
+                    help="Coarsening levels for feature graph (default: 0)")
 
 parser.add_argument("--filter_name", type=str, default="chebyshev",
-                    help="Name of graph convolutional filter")
-parser.add_argument("--filter_sizes", type=int, nargs="+", default=[5], help="Filter sizes")
-parser.add_argument("--num_features", type=int, nargs="+", default=[32], help="No. of features per GCL")
-parser.add_argument("--pooling_sizes", type=int, nargs="+", default=[1], help="Pooling sizes")
-parser.add_argument("--fc_layers", type=int, nargs="*", help="Fully-connected layers")
+                    help="Name of graph convolutional filter (default: chebyshev)")
+parser.add_argument("--filter_sizes", type=int, nargs="+", default=[5], help="Filter sizes (default: [5])")
+parser.add_argument("--num_features", type=int, nargs="+", default=[32],
+                    help="No. of features per GCL (default: [32])")
+parser.add_argument("--pooling_sizes", type=int, nargs="+", default=[1], help="Pooling sizes (default: [1])")
+parser.add_argument("--fc_layers", type=int, nargs="*", help="Fully-connected layers (default: None)")
 
-parser.add_argument("--learning_rate", type=float, default=1e-3, help="Learning rate")
-parser.add_argument("--batch_size", type=int, default=64, help="Batch size")
-parser.add_argument("--epochs", type=int, default=200, help="No. of epochs")
+parser.add_argument("--learning_rate", type=float, default=1e-3, help="Learning rate (default: 1e-3)")
+parser.add_argument("--batch_size", type=int, default=64, help="Batch size (default: 64)")
+parser.add_argument("--epochs", type=int, default=200, help="No. of epochs (default: 200)")
 
-parser.add_argument("--dropout", type=float, default=0.5, help="Dropout keep probability")
-parser.add_argument("--l2", type=float, default=0.0, help="L2 regularization lambda")
+parser.add_argument("--dropout", type=float, default=0.5, help="Dropout keep probability (default: 0.5)")
+parser.add_argument("--l2", type=float, default=0.0, help="L2 regularization lambda (default: 0.0)")
 
 args = parser.parse_args()
 

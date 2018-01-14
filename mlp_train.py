@@ -18,16 +18,18 @@ model_name = "mlp"
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups", help="Dataset name")
+parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups",
+                    help="Dataset name (default: 20 Newsgroups)")
 
-parser.add_argument("--layers", type=int, nargs="*", help="No. of units in fully-connected layers")
+parser.add_argument("--layers", type=int, nargs="*",
+                    help="No. of units in fully-connected layers (default: None)")
 
-parser.add_argument("--learning_rate", type=float, default=1e-3, help="Learning rate")
-parser.add_argument("--batch_size", type=int, default=64, help="Batch size")
-parser.add_argument("--epochs", type=int, default=200, help="No. of epochs")
+parser.add_argument("--learning_rate", type=float, default=1e-3, help="Learning rate (default: 1e-3)")
+parser.add_argument("--batch_size", type=int, default=64, help="Batch size (default: 64)")
+parser.add_argument("--epochs", type=int, default=200, help="No. of epochs (default: 200)")
 
-parser.add_argument("--dropout", type=float, default=0.5, help="Dropout keep probability")
-parser.add_argument("--l2", type=float, default=0.0, help="L2 regularization lambda")
+parser.add_argument("--dropout", type=float, default=0.5, help="Dropout keep probability (default: 0.5)")
+parser.add_argument("--l2", type=float, default=0.0, help="L2 regularization lambda (default: 0.0)")
 
 args = parser.parse_args()
 
