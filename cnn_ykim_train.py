@@ -44,8 +44,8 @@ log_device_placement = False  # log placement of operations on devices
 dataset = "20 Newsgroups"
 train, test = data.load_dataset(dataset, out="word2ind", maxlen=seq_len)
 
-x_train = train.data_word2ind.astype(np.int32)
-x_test = test.data_word2ind.astype(np.int32)
+x_train = train.data.astype(np.int32)
+x_test = test.data.astype(np.int32)
 y_train = train.labels
 y_test = test.labels
 

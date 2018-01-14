@@ -51,8 +51,8 @@ log_device_placement = False  # log placement of operations on devices
 dataset = "20 Newsgroups"
 train, test = data.load_dataset(dataset, out="tfidf", norm="l1")
 
-x_train = train.data_tfidf.astype(np.float32)
-x_test = test.data_tfidf.astype(np.float32)
+x_train = train.data.astype(np.float32)
+x_test = test.data.astype(np.float32)
 y_train = train.labels
 y_test = test.labels
 
