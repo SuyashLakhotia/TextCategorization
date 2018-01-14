@@ -1,3 +1,5 @@
+import argparse
+
 import numpy as np
 from sklearn.svm import LinearSVC
 from sklearn.naive_bayes import MultinomialNB
@@ -5,10 +7,19 @@ from sklearn.naive_bayes import MultinomialNB
 import data
 
 
+# Parse Arguments
+# ==================================================
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups", help="Dataset name")
+
+args = parser.parse_args()
+
+
 # Data Preparation
 # ==================================================
 
-dataset = "20 Newsgroups"
+dataset = args.dataset
 train, test = data.load_dataset(dataset, out="tfidf", norm="l1")
 
 x_train = train.data.astype(np.float32)

@@ -1,3 +1,4 @@
+import argparse
 import os
 import time
 
@@ -14,6 +15,21 @@ from train import train_and_test
 model_name = "gcnn_spline"
 
 
+# Parse Arguments
+# ==================================================
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups", help="Dataset name")
+parser.add_argument("--num_edges", type=int, default=16, help="No. of edges in feature graph")
+parser.add_argument("--coarsening_levels", type=int, default=0, help="Coarsening levels for feature graph")
+parser.add_argument("--filter_sizes", type=int, nargs="+", default=[5], help="Filter sizes")
+parser.add_argument("--num_features", type=int, nargs="+", default=[32], help="No. of features per GCL")
+parser.add_argument("--pooling_sizes", type=int, nargs="+", default=[1], help="Pooling sizes")
+parser.add_argument("--fc_layers", type=int, nargs="*", help="Fully-connected layers")
+
+args = parser.parse_args()
+
+
 # Parameters
 # ==================================================
 
@@ -22,14 +38,14 @@ embedding_dim = 300  # dimensionality of embedding
 embedding_file = "data/GoogleNews-vectors-negative300.bin"  # word embeddings file
 
 # Feature graph parameters
-num_edges = 16
-coarsening_levels = 0
+num_edges = args.num_edges
+coarsening_levels = args.coarsening_levels
 
 # Model parameters
-filter_sizes = [5]  # filter sizes
-num_features = [32]  # number of features per GCL
-pooling_sizes = [1]  # pooling sizes (1 (no pooling) or power of 2)
-fc_layers = []  # fully-connected layers
+polynomial_orders = args.filter_sizes  # filter sizes
+num_features = args.num_features  # number of features per GCL
+pooling_sizes = args.pooling_sizes  # pooling sizes (1 (no pooling) or power of 2)
+fc_layers = args.fc_layers if args.fc_layers is not None else []  # fully-connected layers
 
 # Training parameters
 learning_rate = 1e-3
@@ -48,7 +64,7 @@ log_device_placement = False  # log placement of operations on devices
 # Data Preparation
 # ==================================================
 
-dataset = "20 Newsgroups"
+dataset = args.dataset
 train, test = data.load_dataset(dataset, out="tfidf", norm="l1")
 
 x_train = train.data.astype(np.float32)

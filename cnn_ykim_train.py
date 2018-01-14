@@ -1,3 +1,4 @@
+import argparse
 import os
 import time
 
@@ -12,6 +13,18 @@ from train import train_and_test
 model_name = "cnn_ykim"
 
 
+# Parse Arguments
+# ==================================================
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups", help="Dataset name")
+parser.add_argument("--seq_len", type=int, default=10000, help="Sequence length for every pattern")
+parser.add_argument("--filter_heights", type=int, nargs="+", default=[3, 4, 5], help="Filter heights")
+parser.add_argument("--num_features", type=int, default=128, help="No. of features per filter")
+
+args = parser.parse_args()
+
+
 # Parameters
 # ==================================================
 
@@ -20,9 +33,9 @@ embedding_dim = 300  # dimensionality of embedding
 embedding_file = "data/GoogleNews-vectors-negative300.bin"  # word embeddings file
 
 # Model parameters
-seq_len = 10000  # sequence length for every pattern
-filter_heights = [3, 4, 5]  # filter heights
-num_features = 128  # number of features per filter
+seq_len = args.seq_len  # sequence length for every pattern
+filter_heights = args.filter_heights  # filter heights
+num_features = args.num_features  # number of features per filter
 
 # Training parameters
 learning_rate = 1e-3
@@ -41,7 +54,7 @@ log_device_placement = False  # log placement of operations on devices
 # Data Preparation
 # ==================================================
 
-dataset = "20 Newsgroups"
+dataset = args.dataset
 train, test = data.load_dataset(dataset, out="word2ind", maxlen=seq_len)
 
 x_train = train.data.astype(np.int32)
