@@ -17,10 +17,19 @@ model_name = "cnn_ykim"
 # ==================================================
 
 parser = argparse.ArgumentParser()
+
 parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups", help="Dataset name")
+
 parser.add_argument("--seq_len", type=int, default=10000, help="Sequence length for every pattern")
 parser.add_argument("--filter_heights", type=int, nargs="+", default=[3, 4, 5], help="Filter heights")
 parser.add_argument("--num_features", type=int, default=128, help="No. of features per filter")
+
+parser.add_argument("--learning_rate", type=float, default=1e-3, help="Learning rate")
+parser.add_argument("--batch_size", type=int, default=64, help="Batch size")
+parser.add_argument("--epochs", type=int, default=200, help="No. of epochs")
+
+parser.add_argument("--dropout", type=float, default=0.5, help="Dropout keep probability")
+parser.add_argument("--l2", type=float, default=0.0, help="L2 regularization lambda")
 
 args = parser.parse_args()
 
@@ -38,13 +47,13 @@ filter_heights = args.filter_heights  # filter heights
 num_features = args.num_features  # number of features per filter
 
 # Training parameters
-learning_rate = 1e-3
-batch_size = 64
-num_epochs = 200
+learning_rate = args.learning_rate  # learning rate
+batch_size = args.batch_size  # batch size
+num_epochs = args.epochs  # no. of training epochs
 
 # Regularization parameters
-dropout_keep_prob = 0.5  # dropout keep probability
-l2_reg_lambda = 0.0  # L2 regularization lambda
+dropout_keep_prob = args.dropout  # dropout keep probability
+l2_reg_lambda = args.l2  # L2 regularization lambda
 
 # Misc. parameters
 allow_soft_placement = True  # allow device soft device placement i.e. fall back on available device

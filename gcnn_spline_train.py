@@ -19,13 +19,23 @@ model_name = "gcnn_spline"
 # ==================================================
 
 parser = argparse.ArgumentParser()
+
 parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups", help="Dataset name")
+
 parser.add_argument("--num_edges", type=int, default=16, help="No. of edges in feature graph")
 parser.add_argument("--coarsening_levels", type=int, default=0, help="Coarsening levels for feature graph")
+
 parser.add_argument("--filter_sizes", type=int, nargs="+", default=[5], help="Filter sizes")
 parser.add_argument("--num_features", type=int, nargs="+", default=[32], help="No. of features per GCL")
 parser.add_argument("--pooling_sizes", type=int, nargs="+", default=[1], help="Pooling sizes")
 parser.add_argument("--fc_layers", type=int, nargs="*", help="Fully-connected layers")
+
+parser.add_argument("--learning_rate", type=float, default=1e-3, help="Learning rate")
+parser.add_argument("--batch_size", type=int, default=64, help="Batch size")
+parser.add_argument("--epochs", type=int, default=200, help="No. of epochs")
+
+parser.add_argument("--dropout", type=float, default=0.5, help="Dropout keep probability")
+parser.add_argument("--l2", type=float, default=0.0, help="L2 regularization lambda")
 
 args = parser.parse_args()
 
@@ -48,13 +58,13 @@ pooling_sizes = args.pooling_sizes  # pooling sizes (1 (no pooling) or power of 
 fc_layers = args.fc_layers if args.fc_layers is not None else []  # fully-connected layers
 
 # Training parameters
-learning_rate = 1e-3
-batch_size = 64
-num_epochs = 200
+learning_rate = args.learning_rate  # learning rate
+batch_size = args.batch_size  # batch size
+num_epochs = args.epochs  # no. of training epochs
 
 # Regularization parameters
-dropout_keep_prob = 0.5  # dropout keep probability
-l2_reg_lambda = 0.0  # L2 regularization lambda
+dropout_keep_prob = args.dropout  # dropout keep probability
+l2_reg_lambda = args.l2  # L2 regularization lambda
 
 # Misc. parameters
 allow_soft_placement = True  # allow device soft device placement i.e. fall back on available device
