@@ -1,6 +1,6 @@
 "Dataset","Model Name","Hyperparameters","Test Accuracy","Notes","Latest Commit","Timestamp"
-"20 Newsgroups","Linear SVC","-","0.6972","","517f09b","-"
-"20 Newsgroups","Multinomial Naive Bayes","-","0.6954","","517f09b","-"
+"20 Newsgroups","Linear SVC","-","0.697226938","-","599fa88","-"
+"20 Newsgroups","Multinomial Naive Bayes","-","0.695387663","-","599fa88","-"
 "20 Newsgroups","mlp","{layers: []}","0.709252954","","3f55b77","1514560051"
 "20 Newsgroups","mlp","{layers: [100]}","0.728211658","","0ddb83d","1514615785"
 "20 Newsgroups","mlp","{layers: [360]}","0.730758347","","0ddb83d","1514562275"
