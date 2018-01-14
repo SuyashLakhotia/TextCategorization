@@ -1,6 +1,7 @@
 import re
 import collections
 import subprocess
+import copy
 
 import numpy as np
 import sklearn.datasets
@@ -182,6 +183,51 @@ class Text20News(TextDataset):
             self.data = self.data_word2ind
 
 
+class TextRTPolarity(TextDataset):
+    """
+    Pang and Lee's movie review sentiment polarity dataset.
+    http://www.cs.cornell.edu/people/pabo/movie-review-data/
+    """
+
+    def __init__(self):
+        # Load data from files
+        positive_examples = list(open("data/rt-polarity.pos", "r", encoding="utf-8").readlines())
+        positive_examples = [s.strip() for s in positive_examples]
+        negative_examples = list(open("data/rt-polarity.neg", "r", encoding="utf-8").readlines())
+        negative_examples = [s.strip() for s in negative_examples]
+
+        # Save documents
+        self.documents = np.array(positive_examples + negative_examples)
+
+        # Save target labels
+        positive_labels = [0 for _ in positive_examples]
+        negative_labels = [1 for _ in negative_examples]
+        self.labels = np.array(positive_labels + negative_labels)
+
+        # Save class names
+        self.class_names = ["pos", "neg"]
+
+        # Shuffle data
+        np.random.seed(10)
+        shuffle_indices = np.random.permutation(np.arange(len(self.labels)))
+        self.documents = self.documents[shuffle_indices]
+        self.labels = self.labels[shuffle_indices]
+
+    def preprocess(self, out, **params):
+        self.clean_text()  # tokenize & clean text
+        self.count_vectorize()  # create term-document count matrix and vocabulary
+        self.orig_vocab_size = len(self.vocab)
+        self.keep_top_words(5000)  # keep only the top 5000 words
+
+        if out == "tfidf":
+            self.tfidf_normalize(**params)  # transform count matrix into a normalized tf-idf matrix
+            self.data = self.data_tfidf
+        elif out == "word2ind":
+            maxlen = max([len(x.split(" ")) for x in self.documents])
+            self.generate_word2ind(maxlen=maxlen)  # transform documents to sequences of vocab indexes
+            self.data = self.data_word2ind
+
+
 def load_dataset(dataset, out, **params):
     """
     Returns the train & test datasets for a chosen dataset.
@@ -194,6 +240,20 @@ def load_dataset(dataset, out, **params):
         print("Loading test data...")
         test = Text20News(subset="test")
         test.preprocess_test(train_vocab=train.vocab, out=out, **params)
+
+        return train, test
+    elif dataset == "RT Polarity":
+        print("Loading data...")
+        all_data = TextRTPolarity()
+        all_data.preprocess(out=out, **params)
+
+        # Split train/test set
+        train = copy.deepcopy(all_data)
+        test = copy.deepcopy(all_data)
+        split_index = -1 * int(0.1 * float(all_data.data.shape[0]))
+        train.documents, test.documents = all_data.documents[:split_index], all_data.documents[split_index:]
+        train.data, test.data = all_data.data[:split_index], all_data.data[split_index:]
+        train.labels, test.labels = all_data.labels[:split_index], all_data.labels[split_index:]
 
         return train, test
 
