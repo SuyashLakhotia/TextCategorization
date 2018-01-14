@@ -56,10 +56,8 @@ class GraphCNN(object):
         # Graph convolutional + pooling layer(s)
         for i in range(len(K)):
             with tf.variable_scope("conv-maxpool-{}-{}".format(i, K[i])):
-                F_in = int(x.get_shape()[2])
-                W = tf.Variable(tf.truncated_normal([F_in * K[i], F[i]], stddev=0.1), name="W")
                 b = tf.Variable(tf.constant(0.1, shape=[1, 1, F[i]]), name="b")
-                x = self.graph_conv(x, W, L[i], K[i], F[i]) + b
+                x = self.graph_conv(x, L[i], K[i], F[i]) + b
                 x = tf.nn.relu(x)
                 x = self.graph_max_pool(x, P[i])
 
@@ -112,7 +110,7 @@ class GraphCNN(object):
             correct_predictions = tf.equal(self.predictions, self.input_y)
             self.accuracy = tf.reduce_mean(tf.cast(correct_predictions, "float"), name="accuracy")
 
-    def graph_conv_chebyshev(self, x, W, L, K, F_out):
+    def graph_conv_chebyshev(self, x, L, K, F_out):
         """
         Graph convolutional operation.
         """
@@ -153,12 +151,13 @@ class GraphCNN(object):
         x = tf.reshape(x, [B * V, F_in * K])     # B*V x F_in*K
 
         # Compose linearly F_in features to get F_out features
+        W = tf.Variable(tf.truncated_normal([F_in * K, F_out], stddev=0.1), name="W")
         x = tf.matmul(x, W)                      # B*V x F_out
         x = tf.reshape(x, [B, V, F_out])         # B x V x F_out
 
         return x
 
-    def graph_conv_spline(self, x, W, L, K, F_out):
+    def graph_conv_spline(self, x, L, K, F_out):
         """
         Graph convolution operation.
         """
@@ -174,20 +173,27 @@ class GraphCNN(object):
         basis = tf.constant(basis, dtype=tf.float32)
 
         # Weight multiplication
+        W = tf.Variable(tf.truncated_normal([K, F_in * F_out], stddev=0.1), name="W")
         W = tf.matmul(basis, W)  # V x F_out*F_in
         W = tf.reshape(W, [V, F_out, F_in])
 
         return self.filter_in_fourier(x, L, K, F_out, U, W)
 
-    def graph_conv_fourier(self, x, W, L, K, F_out):
+    def graph_conv_fourier(self, x, L, K, F_out):
         """
         Graph convolution operation.
         """
         assert K == L.shape[0]  # artificial but useful to compute number of parameters
 
+        B, V, F_in = x.get_shape()
+        B, V, F_in = int(B), int(V), int(F_in)
+
         # Fourier basis
         _, U = graph.fourier(L)
         U = tf.constant(U.T, dtype=tf.float32)
+
+        # Weights
+        W = tf.Variable(tf.truncated_normal([V, F_out, F_in], stddev=0.1), name="W")
 
         return self.filter_in_fourier(x, L, K, F_out, U, W)
 
