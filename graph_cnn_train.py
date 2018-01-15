@@ -36,11 +36,11 @@ parser.add_argument("--pooling_sizes", type=int, nargs="+", default=[1], help="P
 parser.add_argument("--fc_layers", type=int, nargs="*", help="Fully-connected layers (default: None)")
 
 parser.add_argument("--learning_rate", type=float, default=1e-3, help="Learning rate (default: 1e-3)")
-parser.add_argument("--batch_size", type=int, default=64, help="Batch size (default: 64)")
-parser.add_argument("--epochs", type=int, default=200, help="No. of epochs (default: 200)")
-
 parser.add_argument("--dropout", type=float, default=0.5, help="Dropout keep probability (default: 0.5)")
 parser.add_argument("--l2", type=float, default=0.0, help="L2 regularization lambda (default: 0.0)")
+
+parser.add_argument("--batch_size", type=int, default=64, help="Batch size (default: 64)")
+parser.add_argument("--epochs", type=int, default=200, help="No. of epochs (default: 200)")
 
 args = parser.parse_args()
 
@@ -169,6 +169,6 @@ with tf.Graph().as_default():
                                       batch_size, num_epochs, dropout_keep_prob, out_dir)
 
         # Output for results.csv
-        hyperparams = "{{num_edges: {}, coarsening_levels: {}, filter_sizes: {}, num_features: {}, pooling_sizes: {}, fc_layers: {}, dropout: {}}}".format(
-            num_edges, coarsening_levels, filter_sizes, num_features, pooling_sizes, fc_layers, dropout_keep_prob)
+        hyperparams = "{{num_edges: {}, coarsening_levels: {}, filter_sizes: {}, num_features: {}, pooling_sizes: {}, fc_layers: {}}}".format(
+            num_edges, coarsening_levels, filter_sizes, num_features, pooling_sizes, fc_layers)
         data.print_result(dataset, model_name, max_accuracy, hyperparams, timestamp)

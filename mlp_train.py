@@ -25,11 +25,11 @@ parser.add_argument("--layers", type=int, nargs="*",
                     help="No. of units in fully-connected layers (default: None)")
 
 parser.add_argument("--learning_rate", type=float, default=1e-3, help="Learning rate (default: 1e-3)")
-parser.add_argument("--batch_size", type=int, default=64, help="Batch size (default: 64)")
-parser.add_argument("--epochs", type=int, default=200, help="No. of epochs (default: 200)")
-
 parser.add_argument("--dropout", type=float, default=0.5, help="Dropout keep probability (default: 0.5)")
 parser.add_argument("--l2", type=float, default=0.0, help="L2 regularization lambda (default: 0.0)")
+
+parser.add_argument("--batch_size", type=int, default=64, help="Batch size (default: 64)")
+parser.add_argument("--epochs", type=int, default=200, help="No. of epochs (default: 200)")
 
 args = parser.parse_args()
 
