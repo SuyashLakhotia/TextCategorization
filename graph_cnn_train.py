@@ -171,4 +171,4 @@ with tf.Graph().as_default():
         # Output for results.csv
         hyperparams = "{{num_edges: {}, coarsening_levels: {}, filter_sizes: {}, num_features: {}, pooling_sizes: {}, fc_layers: {}}}".format(
             num_edges, coarsening_levels, filter_sizes, num_features, pooling_sizes, fc_layers)
-        data.print_result(dataset, model_name, max_accuracy, hyperparams, timestamp)
+        data.print_result(dataset, model_name, max_accuracy, timestamp, hyperparams, args)

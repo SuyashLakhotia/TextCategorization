@@ -105,4 +105,4 @@ with tf.Graph().as_default():
 
         # Output for results.csv
         hyperparams = "{{layers: {}}}".format(layers)
-        data.print_result(dataset, model_name, max_accuracy, hyperparams, timestamp)
+        data.print_result(dataset, model_name, max_accuracy, timestamp, hyperparams, args)

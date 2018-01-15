@@ -1,4 +1,5 @@
 import argparse
+import time
 
 import numpy as np
 from sklearn.svm import LinearSVC
@@ -57,5 +58,6 @@ predicted = bayes_clf.predict(x_test)
 bayes_acc = np.mean(predicted == y_test)
 
 # Output for results.csv
-data.print_result(dataset, "Linear SVC", svm_acc)
-data.print_result(dataset, "Multinomial Naive Bayes", bayes_acc)
+timestamp = str(int(time.time()))
+data.print_result(dataset, "Linear SVC", svm_acc, timestamp)
+data.print_result(dataset, "Multinomial Naive Bayes", bayes_acc, timestamp)

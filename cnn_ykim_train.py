@@ -128,4 +128,4 @@ with tf.Graph().as_default():
         # Output for results.csv
         hyperparams = "{{seq_len: {}, filter_heights: {}, num_features: {}}}".format(
             seq_len, filter_heights, num_features)
-        data.print_result(dataset, model_name, max_accuracy, hyperparams, timestamp)
+        data.print_result(dataset, model_name, max_accuracy, timestamp, hyperparams, args)
