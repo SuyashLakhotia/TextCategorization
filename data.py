@@ -326,7 +326,7 @@ def one_hot_labels(num_labels, labels):
     return y
 
 
-def print_result(dataset, model_name, acc, timestamp, hyperparams="-", train_params=None):
+def print_result(dataset, model_name, accuracy, timestamp, hyperparams="-", train_params=None):
     """
     Prints the record for results.csv.
     """
@@ -341,6 +341,6 @@ def print_result(dataset, model_name, acc, timestamp, hyperparams="-", train_par
         "{learning_rate: 1e-3, dropout: 0.5, l2: 0.0, batch_size: 64, epochs: 200}"
 
     print("")
-    print("\"{}\",\"{}\",\"{}\",\"{}\",\"{:.9f}\",\"{}\",\"{}\",\"{}\"".format(dataset, model_name,
-                                                                               hyperparams, params_str, acc,
-                                                                               "-", latest_git, timestamp))
+    print("\"{}\",\"{}\",\"{}\",\"{}\",\"{:.9f}\",\"{}\",\"{}\",\"{}\"".format(dataset, model_name, accuracy,
+                                                                               hyperparams, params_str, "-",
+                                                                               latest_git, timestamp))
