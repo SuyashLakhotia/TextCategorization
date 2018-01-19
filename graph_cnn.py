@@ -12,7 +12,8 @@ class GraphCNN(object):
 
     filter_name = Filter name (i.e. "chebyshev", "spline", "fourier")
     L = List of graph Laplacians.
-    K = List of filter sizes (polynomial orders for Chebyshev, K[i] = L[i].shape[0] for non-param Fourier)
+    K = List of filter sizes i.e. support sizes (no. of hops)
+        (Polynomial orders for Chebyshev; K[i] = L[i].shape[0] for non-param Fourier)
     F = List of no. of features (per filter).
     P = List of pooling sizes (per filter).
     FC = List of fully-connected layers.
