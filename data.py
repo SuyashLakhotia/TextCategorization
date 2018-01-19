@@ -338,7 +338,6 @@ def print_result(dataset, model_name, accuracy, timestamp, hyperparams="-", trai
         params_str = "{{learning_rate: {}, dropout: {}, l2_reg: {}, batch_size: {}, epochs: {}}}".format(
             train_params.learning_rate, train_params.dropout, train_params.l2, train_params.batch_size,
             train_params.epochs)
-        "{learning_rate: 1e-3, dropout: 0.5, l2: 0.0, batch_size: 64, epochs: 200}"
 
     print("")
     print("\"{}\",\"{}\",\"{}\",\"{}\",\"{:.9f}\",\"{}\",\"{}\",\"{}\"".format(dataset, model_name, accuracy,
