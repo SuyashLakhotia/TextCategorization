@@ -136,7 +136,7 @@ class TextDataset(object):
 class Text20News(TextDataset):
     """
     20 Newsgroups dataset.
-    http://scikit-learn.org/stable/datasets/twenty_newsgroups.html
+    Dataset retrieved from scikit-learn (http://scikit-learn.org/stable/datasets/twenty_newsgroups.html)
     """
 
     def __init__(self, subset, remove=("headers", "footers", "quotes"), categories=None,
@@ -240,8 +240,6 @@ def load_dataset(dataset, out, **params):
         print("Loading test data...")
         test = Text20News(subset="test")
         test.preprocess_test(train_vocab=train.vocab, out=out, **params)
-
-        return train, test
     elif dataset == "RT Polarity":
         print("Loading data...")
         all_data = TextRTPolarity()
@@ -255,7 +253,7 @@ def load_dataset(dataset, out, **params):
         train.data, test.data = all_data.data[:split_index], all_data.data[split_index:]
         train.labels, test.labels = all_data.labels[:split_index], all_data.labels[split_index:]
 
-        return train, test
+    return train, test
 
 
 def load_word2vec(filepath, vocabulary, embedding_dim):
@@ -340,6 +338,6 @@ def print_result(dataset, model_name, accuracy, timestamp, hyperparams="-", trai
             train_params.epochs)
 
     print("")
-    print("\"{}\",\"{}\",\"{}\",\"{}\",\"{:.9f}\",\"{}\",\"{}\",\"{}\"".format(dataset, model_name, accuracy,
+    print("\"{}\",\"{}\",\"{:.9f}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\"".format(dataset, model_name, accuracy,
                                                                                hyperparams, params_str, "-",
                                                                                latest_git, timestamp))
