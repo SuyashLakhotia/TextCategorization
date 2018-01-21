@@ -85,6 +85,7 @@ class GraphCNN(object):
                 l2_loss += tf.nn.l2_loss(b)
 
                 x = tf.nn.xw_plus_b(x, W, b)
+                x = tf.layers.batch_normalization(x, training=self.train_flag)
                 x = tf.nn.relu(x)
                 x = tf.nn.dropout(x, self.dropout_keep_prob)
 
