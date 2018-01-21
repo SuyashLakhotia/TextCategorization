@@ -106,7 +106,7 @@ class TextDataset(object):
         analyzer = self.count_vectorizer.build_analyzer()
         tokenized_docs = np.array([analyzer(doc) for doc in self.documents])
 
-        # Transform documents from words to indexes using svocabulary.
+        # Transform documents from words to indexes using vocabulary.
         sequences = np.array([[reverse_vocab[w] for w in tokens if w in reverse_vocab]
                               for tokens in tokenized_docs])
 
@@ -154,17 +154,17 @@ class Text20News(TextDataset):
         idx = np.argwhere(wc < freq).squeeze()
         self.keep_documents(idx)
 
-    def preprocess_train(self, out, **params):
+    def preprocess_train(self, out, vocab_size=10000, **params):
         self.remove_short_documents(nwords=20, vocab="full")  # remove documents < 20 words in length
         self.clean_text()  # tokenize & clean text
         self.count_vectorize(stop_words="english")  # create term-document count matrix and vocabulary
         self.orig_vocab_size = len(self.vocab)
         self.remove_encoded_images()  # remove encoded images
-        self.keep_top_words(10000)  # keep only the top 10000 words
+        self.keep_top_words(vocab_size)  # keep only the top vocab_size words
         self.remove_short_documents(nwords=5, vocab="selected")  # remove docs whose signal would be the zero vector
 
         if out == "tfidf":
-            self.tfidf_normalize(**params)  # transform count matrix into a normalized tf-idf matrix
+            self.tfidf_normalize(**params)  # transform count matrix into a normalized TF-IDF matrix
             self.data = self.data_tfidf
         elif out == "word2ind":
             self.generate_word2ind(**params)  # transform documents to sequences of vocab indexes
@@ -213,14 +213,14 @@ class TextRTPolarity(TextDataset):
         self.documents = self.documents[shuffle_indices]
         self.labels = self.labels[shuffle_indices]
 
-    def preprocess(self, out, **params):
+    def preprocess(self, out, vocab_size=5000, **params):
         self.clean_text()  # tokenize & clean text
         self.count_vectorize()  # create term-document count matrix and vocabulary
         self.orig_vocab_size = len(self.vocab)
-        self.keep_top_words(5000)  # keep only the top 5000 words
+        self.keep_top_words(vocab_size)  # keep only the top vocab_size words
 
         if out == "tfidf":
-            self.tfidf_normalize(**params)  # transform count matrix into a normalized tf-idf matrix
+            self.tfidf_normalize(**params)  # transform count matrix into a normalized TF-IDF matrix
             self.data = self.data_tfidf
         elif out == "word2ind":
             maxlen = max([len(x.split(" ")) for x in self.documents])
@@ -228,22 +228,28 @@ class TextRTPolarity(TextDataset):
             self.data = self.data_word2ind
 
 
-def load_dataset(dataset, out, **params):
+def load_dataset(dataset, out, vocab_size=None, **params):
     """
     Returns the train & test datasets for a chosen dataset.
     """
     if dataset == "20 Newsgroups":
+        if vocab_size is None:
+            vocab_size = 10000
+
         print("Loading training data...")
         train = Text20News(subset="train")
-        train.preprocess_train(out=out, **params)
+        train.preprocess_train(out=out, vocab_size=vocab_size, **params)
 
         print("Loading test data...")
         test = Text20News(subset="test")
         test.preprocess_test(train_vocab=train.vocab, out=out, **params)
     elif dataset == "RT Polarity":
+        if vocab_size is None:
+            vocab_size = 5000
+
         print("Loading data...")
         all_data = TextRTPolarity()
-        all_data.preprocess(out=out, **params)
+        all_data.preprocess(out=out, vocab_size=vocab_size, **params)
 
         # Split train/test set
         train = copy.deepcopy(all_data)
