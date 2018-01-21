@@ -58,6 +58,7 @@ def train_and_test(sess, model, x_train, y_train, x_test, y_test, learning_rate,
         feed_dict = {
             model.input_x: x_batch,
             model.input_y: y_batch,
+            model.train_flag: True,
             model.dropout_keep_prob: dropout_keep_prob
         }
         _, step, summaries, loss, accuracy = sess.run([train_op, global_step, train_summary_op, model.loss,
@@ -89,7 +90,7 @@ def train_and_test(sess, model, x_train, y_train, x_test, y_test, learning_rate,
             feed_dict = {
                 model.input_x: x_batch,
                 model.input_y: y_batch,
-                model.dropout_keep_prob: 1.0
+                model.train_flag: False
             }
             step, batch_pred, batch_loss = sess.run([global_step, model.predictions, model.loss],
                                                     feed_dict)

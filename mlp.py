@@ -10,7 +10,8 @@ class MLP(object):
         # Placeholders for input, output and dropout
         self.input_x = tf.placeholder(tf.float32, [None, vocab_size], name="input_x")
         self.input_y = tf.placeholder(tf.int32, [None], name="input_y")
-        self.dropout_keep_prob = tf.placeholder(tf.float32, name="dropout_keep_prob")
+        self.train_flag = tf.placeholder(tf.bool, name="train_flag")
+        self.dropout_keep_prob = tf.placeholder_with_default(1.0, shape=[], name="dropout_keep_prob")
 
         # Keeping track of L2 regularization loss
         l2_loss = tf.constant(0.0)
