@@ -6,6 +6,7 @@ import numpy as np
 import tensorflow as tf
 
 import data
+import utils
 from cnn_ykim import CNN_YKim
 from train import train_and_test
 
@@ -86,19 +87,10 @@ reverse_vocab = {w: i for i, w in enumerate(train.vocab)}
 print("Loading pre-trained embeddings from {}...".format(embedding_file))
 embeddings = data.load_word2vec(embedding_file, reverse_vocab, embedding_dim)
 
-print("")
-print("Vocabulary Size: {}".format(train.orig_vocab_size))
-print("Vocabulary Size (Reduced): {}".format(len(train.vocab)))
-print("Max. Document Length: {}".format(seq_len))
-print("Number of Classes: {}".format(len(train.class_names)))
-print("Train/Test Split: {}/{}".format(len(y_train), len(y_test)))
-print("")
-print("x_train: {}".format(x_train.shape))
-print("x_test: {}".format(x_test.shape))
-print("y_train: {}".format(y_train.shape))
-print("y_test: {}".format(y_test.shape))
-print("")
+# Print information about the dataset.
+utils.print_data_info(train, x_train, x_test, y_train, y_test)
 
+# To print for results.csv.
 data_str = "{{format: 'word2ind', vocab_size: {}}}".format(len(train.vocab))
 
 
@@ -131,4 +123,4 @@ with tf.Graph().as_default():
         # Output for results.csv
         hyperparams = "{{seq_len: {}, filter_heights: {}, num_features: {}}}".format(
             seq_len, filter_heights, num_features)
-        data.print_result(args.dataset, model_name, max_accuracy, data_str, timestamp, hyperparams, args)
+        utils.print_result(args.dataset, model_name, max_accuracy, data_str, timestamp, hyperparams, args)

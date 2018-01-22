@@ -6,6 +6,7 @@ import numpy as np
 import tensorflow as tf
 
 import data
+import utils
 from mlp import MLP
 from train import train_and_test
 
@@ -66,19 +67,11 @@ x_test = test.data.astype(np.float32)
 y_train = train.labels
 y_test = test.labels
 
-print("")
-print("Vocabulary Size: {}".format(train.orig_vocab_size))
-print("Vocabulary Size (Reduced): {}".format(len(train.vocab)))
-print("Number of Classes: {}".format(len(train.class_names)))
-print("Train/Test Split: {}/{}".format(len(y_train), len(y_test)))
-print("")
-print("x_train: {}".format(x_train.shape))
-print("x_test: {}".format(x_test.shape))
-print("y_train: {}".format(y_train.shape))
-print("y_test: {}".format(y_test.shape))
-print("")
+# Print information about the dataset.
+utils.print_data_info(train, x_train, x_test, y_train, y_test)
 
-data_str = "{{format: 'tfidf', vocab_size: {}}}".format(len(train.vocab))
+# To print for results.csv.
+data_str = "{{format: 'word2ind', vocab_size: {}}}".format(len(train.vocab))
 
 
 # Training
@@ -108,4 +101,4 @@ with tf.Graph().as_default():
 
         # Output for results.csv
         hyperparams = "{{layers: {}}}".format(layers)
-        data.print_result(args.dataset, model_name, max_accuracy, data_str, timestamp, hyperparams, args)
+        utils.print_result(args.dataset, model_name, max_accuracy, data_str, timestamp, hyperparams, args)
