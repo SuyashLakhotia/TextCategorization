@@ -78,6 +78,8 @@ print("y_train: {}".format(y_train.shape))
 print("y_test: {}".format(y_test.shape))
 print("")
 
+data_str = "{{format: 'tfidf', vocab_size: {}}}".format(len(train.vocab))
+
 
 # Training
 # ==================================================
@@ -106,4 +108,4 @@ with tf.Graph().as_default():
 
         # Output for results.csv
         hyperparams = "{{layers: {}}}".format(layers)
-        data.print_result(args.dataset, model_name, max_accuracy, timestamp, hyperparams, args)
+        data.print_result(args.dataset, model_name, max_accuracy, data_str, timestamp, hyperparams, args)

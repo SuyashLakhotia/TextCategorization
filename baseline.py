@@ -43,6 +43,8 @@ print("y_train: {}".format(y_train.shape))
 print("y_test: {}".format(y_test.shape))
 print("")
 
+data_str = "{{format: 'tfidf', vocab_size: {}}}".format(len(train.vocab))
+
 
 # Training
 # ==================================================
@@ -61,5 +63,5 @@ bayes_acc = np.mean(predicted == y_test)
 
 # Output for results.csv
 timestamp = str(int(time.time()))
-data.print_result(args.dataset, "Linear SVC", svm_acc, timestamp)
-data.print_result(args.dataset, "Multinomial Naive Bayes", bayes_acc, timestamp)
+data.print_result(args.dataset, "Linear SVC", svm_acc, data_str, timestamp)
+data.print_result(args.dataset, "Multinomial Naive Bayes", bayes_acc, data_str, timestamp)

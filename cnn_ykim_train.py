@@ -99,6 +99,8 @@ print("y_train: {}".format(y_train.shape))
 print("y_test: {}".format(y_test.shape))
 print("")
 
+data_str = "{{format: 'word2ind', vocab_size: {}}}".format(len(train.vocab))
+
 
 # Training
 # ==================================================
@@ -129,4 +131,4 @@ with tf.Graph().as_default():
         # Output for results.csv
         hyperparams = "{{seq_len: {}, filter_heights: {}, num_features: {}}}".format(
             seq_len, filter_heights, num_features)
-        data.print_result(args.dataset, model_name, max_accuracy, timestamp, hyperparams, args)
+        data.print_result(args.dataset, model_name, max_accuracy, data_str, timestamp, hyperparams, args)
