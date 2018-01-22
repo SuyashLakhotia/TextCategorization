@@ -20,6 +20,8 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups",
                     help="Dataset name (default: 20 Newsgroups)")
+parser.add_argument("--vocab_size", type=int, default=None,
+                    help="Vocabulary size (default: None [see data.py])")
 
 parser.add_argument("--layers", type=int, nargs="*",
                     help="No. of units in fully-connected layers (default: None)")
@@ -57,8 +59,7 @@ log_device_placement = False  # log placement of operations on devices
 # Data Preparation
 # ==================================================
 
-dataset = args.dataset
-train, test = data.load_dataset(dataset, out="tfidf", norm="l1")
+train, test = data.load_dataset(args.dataset, out="tfidf", vocab_size=args.vocab_size, norm="l1")
 
 x_train = train.data.astype(np.float32)
 x_test = test.data.astype(np.float32)
@@ -93,7 +94,7 @@ with tf.Graph().as_default():
 
         # Output directory for models and summaries
         timestamp = str(int(time.time()))
-        out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", dataset, model_name, timestamp))
+        out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", args.dataset, model_name, timestamp))
 
         # Convert sparse matrices to arrays
         x_train = x_train.toarray()
@@ -105,4 +106,4 @@ with tf.Graph().as_default():
 
         # Output for results.csv
         hyperparams = "{{layers: {}}}".format(layers)
-        data.print_result(dataset, model_name, max_accuracy, timestamp, hyperparams, args)
+        data.print_result(args.dataset, model_name, max_accuracy, timestamp, hyperparams, args)

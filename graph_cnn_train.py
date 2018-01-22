@@ -22,6 +22,8 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups",
                     help="Dataset name (default: 20 Newsgroups)")
+parser.add_argument("--vocab_size", type=int, default=None,
+                    help="Vocabulary size (default: None [see data.py])")
 
 parser.add_argument("--num_edges", type=int, default=16, help="No. of edges in feature graph (default: 16)")
 parser.add_argument("--coarsening_levels", type=int, default=0,
@@ -81,8 +83,7 @@ log_device_placement = False  # log placement of operations on devices
 # Data Preparation
 # ==================================================
 
-dataset = args.dataset
-train, test = data.load_dataset(dataset, out="tfidf", norm="l1")
+train, test = data.load_dataset(args.dataset, out="tfidf", vocab_size=args.vocab_size, norm="l1")
 
 x_train = train.data.astype(np.float32)
 x_test = test.data.astype(np.float32)
@@ -162,7 +163,7 @@ with tf.Graph().as_default():
 
         # Output directory for models and summaries
         timestamp = str(int(time.time()))
-        out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", dataset, model_name, timestamp))
+        out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", args.dataset, model_name, timestamp))
 
         # Train and test model
         max_accuracy = train_and_test(sess, gcnn, x_train, y_train, x_test, y_test, learning_rate,
@@ -171,4 +172,4 @@ with tf.Graph().as_default():
         # Output for results.csv
         hyperparams = "{{num_edges: {}, coarsening_levels: {}, filter_sizes: {}, num_features: {}, pooling_sizes: {}, fc_layers: {}}}".format(
             num_edges, coarsening_levels, filter_sizes, num_features, pooling_sizes, fc_layers)
-        data.print_result(dataset, model_name, max_accuracy, timestamp, hyperparams, args)
+        data.print_result(args.dataset, model_name, max_accuracy, timestamp, hyperparams, args)
