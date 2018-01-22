@@ -54,11 +54,11 @@ class TextDataset(object):
         Remove documents that contain less than nwords.
         """
         if vocab is "selected":
-            # Word count with selected vocabulary.
+            # Word count with selected vocabulary
             wc = self.data_count.sum(axis=1)
             wc = np.squeeze(np.asarray(wc))
         elif vocab is "full":
-            # Word count with full vocabulary.
+            # Word count with full vocabulary
             wc = np.empty(len(self.documents), dtype=np.int)
             for i, doc in enumerate(self.documents):
                 wc[i] = len(doc.split())
@@ -96,20 +96,20 @@ class TextDataset(object):
         Transforms documents to list of self.vocab indexes of the same length (i.e. maxlen). Do this at the
         very end.
         """
-        # Add "<UNK>" to vocabulary and create a reverse vocabulary lookup.
+        # Add "<UNK>" to vocabulary and create a reverse vocabulary lookup
         if self.vocab[-1] != "<UNK>":
             self.vocab = self.vocab + ["<UNK>"]
         reverse_vocab = {w: i for i, w in enumerate(self.vocab)}
 
-        # Tokenize all the documents using the CountVectorizer's analyzer.
+        # Tokenize all the documents using the CountVectorizer's analyzer
         analyzer = self.count_vectorizer.build_analyzer()
         tokenized_docs = np.array([analyzer(doc) for doc in self.documents])
 
-        # Transform documents from words to indexes using vocabulary.
+        # Transform documents from words to indexes using vocabulary
         sequences = np.array([[reverse_vocab[w] for w in tokens if w in reverse_vocab]
                               for tokens in tokenized_docs])
 
-        # Truncate or pad sequences to match maxlen. Adapted from tflearn.data_utils.pad_sequences.
+        # Truncate or pad sequences to match maxlen (adapted from tflearn.data_utils.pad_sequences)
         lengths = [len(s) for s in sequences]
         num_samples = len(sequences)
         if maxlen is None:

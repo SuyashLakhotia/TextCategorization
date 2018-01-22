@@ -212,7 +212,7 @@ class GraphCNN(object):
             return x
 
     def filter_in_fourier(self, x, L, K, F_out, U, W):
-        # TODO: B x F x V would avoid the permutations
+        # TODO: B x F x V would avoid the permutations?
         B, V, F_in = x.get_shape()
         B, V, F_in = int(B), int(V), int(F_in)
         x = tf.transpose(x, perm=[1, 2, 0])  # V x F_in x B

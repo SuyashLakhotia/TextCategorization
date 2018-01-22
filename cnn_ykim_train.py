@@ -80,17 +80,17 @@ y_test = test.labels
 # Correct sequence length if padding was overriden in data.py
 seq_len = x_train.shape[1]
 
-# Construct reverse lookup vocabulary.
+# Construct reverse lookup vocabulary
 reverse_vocab = {w: i for i, w in enumerate(train.vocab)}
 
-# Process Google News word2vec file (in a memory-friendly way) and store relevant embeddings.
+# Process Google News word2vec file (in a memory-friendly way) and store relevant embeddings
 print("Loading pre-trained embeddings from {}...".format(embedding_file))
 embeddings = data.load_word2vec(embedding_file, reverse_vocab, embedding_dim)
 
-# Print information about the dataset.
+# Print information about the dataset
 utils.print_data_info(train, x_train, x_test, y_train, y_test)
 
-# To print for results.csv.
+# To print for results.csv
 data_str = "{{format: 'word2ind', vocab_size: {}}}".format(len(train.vocab))
 
 
