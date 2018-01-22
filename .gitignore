@@ -3,3 +3,4 @@ __pycache__/
 
 runs/
 data/GoogleNews-vectors-negative300.bin
+data/RCV1
