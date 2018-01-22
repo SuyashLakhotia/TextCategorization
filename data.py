@@ -87,7 +87,7 @@ class TextDataset(object):
 
     def tfidf_normalize(self, norm="l1"):
         """
-        TF-IDF transform & normalize data_count. Do this at the very end.
+        TF-IDF transform & normalize data_count to data_tfidf. Do this at the very end.
         """
         transformer = sklearn.feature_extraction.text.TfidfTransformer(norm=norm)
         self.data_tfidf = transformer.fit_transform(self.data_count)
