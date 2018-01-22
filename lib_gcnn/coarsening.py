@@ -1,8 +1,6 @@
 import numpy as np
 import scipy.sparse
 
-# TODO: Clean up commented code for metis() & metis_one_level() and compare with XB version.
-
 
 def coarsen(A, levels, self_connections=False):
     """
