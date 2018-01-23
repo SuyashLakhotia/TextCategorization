@@ -34,13 +34,8 @@ class MLP(object):
 
         # Final (unnormalized) scores and predictions
         with tf.variable_scope("output"):
-            if len(layers) == 0:
-                num_in = vocab_size
-            else:
-                num_in = layers[-1]
-
             W = tf.get_variable("W",
-                                shape=[num_in, num_classes],
+                                shape=[x.get_shape().as_list()[1], num_classes],
                                 initializer=tf.contrib.layers.xavier_initializer())
             b = tf.Variable(tf.constant(0.1, shape=[num_classes]), name="b")
 
