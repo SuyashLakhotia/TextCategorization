@@ -71,7 +71,7 @@ y_test = test.labels
 utils.print_data_info(train, x_train, x_test, y_train, y_test)
 
 # To print for results.csv
-data_str = "{{format: 'word2ind', vocab_size: {}}}".format(len(train.vocab))
+data_str = "{{format: 'tfidf', vocab_size: {}}}".format(len(train.vocab))
 
 
 # Training

@@ -102,7 +102,7 @@ embeddings = data.load_word2vec(embedding_file, reverse_vocab, embedding_dim)
 utils.print_data_info(train, x_train, x_test, y_train, y_test)
 
 # To print for results.csv
-data_str = "{{format: 'word2ind', vocab_size: {}}}".format(len(train.vocab))
+data_str = "{{format: 'tfidf', vocab_size: {}}}".format(len(train.vocab))
 
 
 # Feature Graph
@@ -144,7 +144,7 @@ with tf.Graph().as_default():
                         P=pooling_sizes,
                         FC=fc_layers,
                         batch_size=batch_size,
-                        num_vertices=len(train.vocab),
+                        num_vertices=x_train.shape[1],
                         num_classes=len(train.class_names),
                         l2_reg_lambda=l2_reg_lambda)
 
