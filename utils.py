@@ -23,11 +23,15 @@ def print_data_info(train, x_train, x_test, y_train, y_test):
     print("")
 
 
-def print_result(dataset, model_name, accuracy, data_str, timestamp, hyperparams="-", train_params=None):
+def print_result(dataset, model_name, accuracy, data_str, timestamp, hyperparams=None, train_params=None,
+                 notes=None):
     """
     Prints the record for results.csv.
     """
     latest_git = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode().strip()
+
+    if hyperparams is None:
+        hyperparams = "-"
 
     if train_params is None:
         train_str = "-"
@@ -36,7 +40,10 @@ def print_result(dataset, model_name, accuracy, data_str, timestamp, hyperparams
             train_params.learning_rate, train_params.dropout, train_params.l2, train_params.batch_size,
             train_params.epochs)
 
+    if notes is None:
+        notes = "-"
+
     print("")
     print("\"{}\",\"{}\",\"{:.9f}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\""
-          .format(dataset, model_name, accuracy, data_str, hyperparams, train_str, "-", latest_git,
+          .format(dataset, model_name, accuracy, data_str, hyperparams, train_str, notes, latest_git,
                   timestamp))

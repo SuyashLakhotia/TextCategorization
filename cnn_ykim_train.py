@@ -38,6 +38,9 @@ parser.add_argument("--l2", type=float, default=0.0, help="L2 regularization lam
 parser.add_argument("--batch_size", type=int, default=64, help="Batch size (default: 64)")
 parser.add_argument("--epochs", type=int, default=200, help="No. of epochs (default: 200)")
 
+parser.add_argument("--notes", type=str, default=None,
+                    help="Any notes to add to the results.csv output (default: None)")
+
 args = parser.parse_args()
 
 
@@ -123,4 +126,5 @@ with tf.Graph().as_default():
         # Output for results.csv
         hyperparams = "{{seq_len: {}, filter_heights: {}, num_features: {}}}".format(
             seq_len, filter_heights, num_features)
-        utils.print_result(args.dataset, model_name, max_accuracy, data_str, timestamp, hyperparams, args)
+        utils.print_result(args.dataset, model_name, max_accuracy, data_str, timestamp, hyperparams, args,
+                           args.notes)
