@@ -7,7 +7,7 @@ import tensorflow as tf
 
 import data
 import utils
-from cnn_ykim import CNN_YKim
+from cnn_ykim import YKimCNN
 from train import train_and_test
 
 
@@ -106,14 +106,14 @@ with tf.Graph().as_default():
     sess = tf.Session(config=session_conf)
     with sess.as_default():
         # Init model
-        cnn = CNN_YKim(sequence_length=seq_len,
-                       num_classes=len(train.class_names),
-                       vocab_size=len(train.vocab),
-                       embedding_size=embedding_dim,
-                       embeddings=embeddings,
-                       filter_heights=filter_heights,
-                       num_features=num_features,
-                       l2_reg_lambda=l2_reg_lambda)
+        cnn = YKimCNN(sequence_length=seq_len,
+                      num_classes=len(train.class_names),
+                      vocab_size=len(train.vocab),
+                      embedding_size=embedding_dim,
+                      embeddings=embeddings,
+                      filter_heights=filter_heights,
+                      num_features=num_features,
+                      l2_reg_lambda=l2_reg_lambda)
 
         # Output directory for models and summaries
         timestamp = str(int(time.time()))

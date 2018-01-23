@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 
-class CNN_YKim(object):
+class YKimCNN(object):
     """
     A CNN architecture for text classification. Composed of an embedding layer, followed by parallel 
     convolutional + max-pooling layer(s) and a softmax layer.
@@ -24,12 +24,11 @@ class CNN_YKim(object):
         # Embedding layer
         with tf.variable_scope("embedding"):
             if embeddings is None:
-                self.embedding_mat = tf.Variable(tf.random_uniform([vocab_size, embedding_size], -1.0, 1.0),
-                                                 name="embeddings")
+                embedding_mat = tf.Variable(tf.random_uniform([vocab_size, embedding_size], -1.0, 1.0),
+                                            name="embeddings")
             else:
-                self.embedding_mat = tf.Variable(embeddings, name="embeddings")
-            self.embedded_x = tf.nn.embedding_lookup(self.embedding_mat, self.input_x)
-            self.embedded_x = tf.expand_dims(self.embedded_x, -1)  # expand for .conv2d
+                embedding_mat = tf.Variable(embeddings, name="embeddings")
+            self.embedded_x = tf.nn.embedding_lookup(embedding_mat, self.input_x)
             self.embedded_x = tf.cast(self.embedded_x, tf.float32)
 
         # Create a convolution + max-pool layer for each filter size (filter_height x embedding_size)
@@ -37,35 +36,30 @@ class CNN_YKim(object):
         for i, filter_height in enumerate(filter_heights):
             with tf.variable_scope("conv-maxpool-{}-{}".format(i, filter_height)):
                 # Convolution layer
-                filter_shape = [filter_height, embedding_size, 1, num_features]
+                filter_shape = [filter_height, embedding_size, num_features]
                 W = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.1), name="W")
-                b = tf.Variable(tf.constant(0.1, shape=[num_features]), name="b")
-                conv = tf.nn.conv2d(self.embedded_x,
-                                    W,
-                                    strides=[1, 1, 1, 1],
+                conv = tf.nn.conv1d(value=self.embedded_x,
+                                    filters=W,
+                                    stride=1,
                                     padding="VALID",
                                     name="conv")
 
-                # Apply non-linearity
+                # Add bias & apply non-linearity
+                b = tf.Variable(tf.constant(0.1, shape=[num_features]), name="b")
                 h = tf.nn.relu(tf.nn.bias_add(conv, b), name="relu")
 
                 # Max-pooling over the outputs
-                pooled = tf.nn.max_pool(value=h,
-                                        ksize=[1, sequence_length - filter_height + 1, 1, 1],
-                                        strides=[1, 1, 1, 1],
-                                        padding="VALID",
-                                        name="pool")
+                pooled = tf.reduce_max(h, axis=1, name="pool")
                 pooled_outputs.append(pooled)
 
         # Combine all the pooled features
-        with tf.variable_scope("reshape"):
+        with tf.variable_scope("concat"):
             num_features_total = num_features * len(filter_heights)
-            h_pool = tf.concat(pooled_outputs, 3)
-            self.h_pool_flat = tf.reshape(h_pool, [-1, num_features_total])
+            self.h_pool = tf.concat(pooled_outputs, -1)
 
         # Add dropout
         with tf.variable_scope("dropout"):
-            self.h_drop = tf.nn.dropout(self.h_pool_flat, self.dropout_keep_prob)
+            self.h_drop = tf.nn.dropout(self.h_pool, self.dropout_keep_prob)
 
         # Final (unnormalized) scores and predictions
         with tf.variable_scope("output"):
