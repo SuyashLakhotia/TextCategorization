@@ -26,10 +26,12 @@ parser.add_argument("--vocab_size", type=int, default=None,
 
 parser.add_argument("--seq_len", type=int, default=10000,
                     help="Sequence length for every pattern (default: 10000)")
-parser.add_argument("--filter_heights", type=int, nargs="+", default=[3, 4, 5],
-                    help="Filter heights (default: [3, 4, 5])")
+parser.add_argument("--filter_widths", type=int, nargs="+", default=[3, 4, 5],
+                    help="Filter widths (default: [3, 4, 5])")
 parser.add_argument("--num_features", type=int, default=128,
                     help="No. of features per filter (default: 128)")
+parser.add_argument("--fc_layers", type=int, nargs="*", default=None,
+                    help="Fully-connected layers (default: None)")
 
 parser.add_argument("--learning_rate", type=float, default=1e-3, help="Learning rate (default: 1e-3)")
 parser.add_argument("--dropout", type=float, default=0.5, help="Dropout keep probability (default: 0.5)")
@@ -53,8 +55,9 @@ embedding_file = "data/GoogleNews-vectors-negative300.bin"  # word embeddings fi
 
 # Model parameters
 seq_len = args.seq_len  # sequence length for every pattern
-filter_heights = args.filter_heights  # filter heights
+filter_widths = args.filter_widths  # filter widths
 num_features = args.num_features  # number of features per filter
+fc_layers = args.fc_layers if args.fc_layers is not None else []  # fully-connected layers
 
 # Training parameters
 learning_rate = args.learning_rate  # learning rate
@@ -111,8 +114,9 @@ with tf.Graph().as_default():
                       vocab_size=len(train.vocab),
                       embedding_size=embedding_dim,
                       embeddings=embeddings,
-                      filter_heights=filter_heights,
+                      filter_widths=filter_widths,
                       num_features=num_features,
+                      fc_layers=fc_layers,
                       l2_reg_lambda=l2_reg_lambda)
 
         # Output directory for models and summaries
@@ -124,7 +128,7 @@ with tf.Graph().as_default():
                                       num_epochs, dropout_keep_prob, out_dir)
 
         # Output for results.csv
-        hyperparams = "{{seq_len: {}, filter_heights: {}, num_features: {}}}".format(
-            seq_len, filter_heights, num_features)
+        hyperparams = "{{seq_len: {}, filter_widths: {}, num_features: {}, fc_layers: {}}}".format(
+            seq_len, filter_widths, num_features, fc_layers)
         utils.print_result(args.dataset, model_name, max_accuracy, data_str, timestamp, hyperparams, args,
                            args.notes)

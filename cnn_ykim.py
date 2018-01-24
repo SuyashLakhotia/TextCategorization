@@ -10,8 +10,8 @@ class YKimCNN(object):
     Code: Adapted from https://github.com/dennybritz/cnn-text-classification-tf
     """
 
-    def __init__(self, sequence_length, num_classes, vocab_size, embedding_size, embeddings, filter_heights,
-                 num_features, l2_reg_lambda):
+    def __init__(self, sequence_length, num_classes, vocab_size, embedding_size, embeddings, filter_widths,
+                 num_features, fc_layers, l2_reg_lambda):
         # Placeholders for input, output and dropout
         self.input_x = tf.placeholder(tf.int32, [None, sequence_length], name="input_x")
         self.input_y = tf.placeholder(tf.int32, [None], name="input_y")
@@ -31,12 +31,12 @@ class YKimCNN(object):
             self.embedded_x = tf.nn.embedding_lookup(embedding_mat, self.input_x)
             self.embedded_x = tf.cast(self.embedded_x, tf.float32)
 
-        # Create a convolution + max-pool layer for each filter size (filter_height x embedding_size)
+        # Create a convolution + max-pool layer for each filter size
         pooled_outputs = []
-        for i, filter_height in enumerate(filter_heights):
-            with tf.variable_scope("conv-maxpool-{}-{}".format(i, filter_height)):
+        for i, filter_width in enumerate(filter_widths):
+            with tf.variable_scope("conv-maxpool-{}-{}".format(i, filter_width)):
                 # Convolution layer
-                filter_shape = [filter_height, embedding_size, num_features]
+                filter_shape = [filter_width, embedding_size, num_features]
                 W = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.1), name="W")
                 conv = tf.nn.conv1d(value=self.embedded_x,
                                     filters=W,
@@ -54,12 +54,27 @@ class YKimCNN(object):
 
         # Combine all the pooled features
         with tf.variable_scope("concat"):
-            num_features_total = num_features * len(filter_heights)
+            num_features_total = num_features * len(filter_widths)
             self.h_pool = tf.concat(pooled_outputs, -1)
 
         # Add dropout
         with tf.variable_scope("dropout"):
-            self.h_drop = tf.nn.dropout(self.h_pool, self.dropout_keep_prob)
+            self.x = tf.nn.dropout(self.h_pool, self.dropout_keep_prob)
+
+        # Create fully-connected layers, if any
+        for i, num_units in enumerate(fc_layers):
+            with tf.variable_scope("fc-{}-{}".format(i, num_units)):
+                W = tf.get_variable("W",
+                                    shape=[self.x.get_shape().as_list()[1], num_units],
+                                    initializer=tf.contrib.layers.xavier_initializer())
+                b = tf.Variable(tf.constant(0.1, shape=[num_units]), name="b")
+
+                l2_loss += tf.nn.l2_loss(W)
+                l2_loss += tf.nn.l2_loss(b)
+
+                self.x = tf.nn.xw_plus_b(self.x, W, b)
+                self.x = tf.nn.relu(self.x)
+                self.x = tf.nn.dropout(self.x, self.dropout_keep_prob)
 
         # Final (unnormalized) scores and predictions
         with tf.variable_scope("output"):
@@ -71,7 +86,7 @@ class YKimCNN(object):
             l2_loss += tf.nn.l2_loss(W)
             l2_loss += tf.nn.l2_loss(b)
 
-            self.scores = tf.nn.xw_plus_b(self.h_drop, W, b, name="scores")
+            self.scores = tf.nn.xw_plus_b(self.x, W, b, name="scores")
             self.predictions = tf.argmax(self.scores, 1, name="predictions")
             self.predictions = tf.cast(self.predictions, tf.int32)
 
