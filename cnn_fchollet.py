@@ -34,40 +34,41 @@ class FCholletCNN(object):
             embedded_x = tf.cast(embedded_x, tf.float32)
             self.x = embedded_x
 
-        # Create a convolution + max-pool layer for each filter size
-        for i, filter_width in enumerate(filter_widths):
-            with tf.variable_scope("conv-maxpool-{}-{}".format(i, filter_width)):
-                if i == 0:
-                    in_channels = embedding_size
-                else:
-                    in_channels = num_features[i - 1]
-                filter_shape = [filter_width, in_channels, num_features[i]]
+        # Convolution + max-pool layer for each filter size
+        for i in range(len(filter_widths)):
+            with tf.variable_scope("conv-maxpool-{}".format(i)):
+                with tf.variable_scope("conv-{}-{}".format(filter_widths[i], num_features[i])):
+                    if i == 0:
+                        in_channels = embedding_size
+                    else:
+                        in_channels = num_features[i - 1]
+                    filter_shape = [filter_widths[i], in_channels, num_features[i]]
 
-                # Convolution layer
-                W = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.1), name="W")
-                conv = tf.nn.conv1d(value=self.x,
-                                    filters=W,
-                                    stride=1,
-                                    padding="VALID",
-                                    name="conv")
+                    # Convolution layer
+                    W = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.1), name="W")
+                    self.x = tf.nn.conv1d(value=self.x,
+                                          filters=W,
+                                          stride=1,
+                                          padding="VALID",
+                                          name="conv")
 
-                # Add bias & apply non-linearity
-                b = tf.Variable(tf.constant(0.1, shape=[num_features[i]]), name="b")
-                self.x = tf.nn.relu(tf.nn.bias_add(conv, b), name="relu")
-
-                # Max-pooling over the outputs
-                self.x = tf.nn.pool(input=self.x,
-                                    window_shape=[pooling_sizes[i]],
-                                    strides=[pooling_sizes[i]],
-                                    pooling_type="MAX",
-                                    padding="VALID",
-                                    name="pool")
+                    # Add bias & apply non-linearity
+                    b = tf.Variable(tf.constant(0.1, shape=[num_features[i]]), name="b")
+                    self.x = tf.nn.relu(tf.nn.bias_add(self.x, b), name="relu")
+                with tf.variable_scope("maxpool-{}".format(pooling_sizes[i])):
+                    # Max-pooling over the outputs
+                    self.x = tf.nn.pool(input=self.x,
+                                        window_shape=[pooling_sizes[i]],
+                                        strides=[pooling_sizes[i]],
+                                        pooling_type="MAX",
+                                        padding="VALID",
+                                        name="pool")
 
         # Global max pooling
         with tf.variable_scope("global-maxpool"):
             self.x = tf.reduce_max(self.x, axis=1)
 
-        # Create fully-connected layers, if any
+        # Fully-connected layers, if any
         for i, num_units in enumerate(fc_layers):
             with tf.variable_scope("fc-{}-{}".format(i, num_units)):
                 W = tf.get_variable("W",

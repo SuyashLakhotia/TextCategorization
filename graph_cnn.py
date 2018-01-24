@@ -55,13 +55,19 @@ class GraphCNN(object):
         # Expand dims for convolution operation
         x = tf.expand_dims(self.input_x, 2)  # B x V x F=1
 
-        # Graph convolutional + pooling layer(s)
+        # Graph convolution + max-pool layer(s)
         for i in range(len(K)):
-            with tf.variable_scope("conv-maxpool-{}-{}".format(i, K[i])):
-                b = tf.Variable(tf.constant(0.1, shape=[1, 1, F[i]]), name="b")
-                x = self.graph_conv(x, L[i], K[i], F[i]) + b
-                x = tf.nn.relu(x)
-                x = self.graph_max_pool(x, P[i])
+            with tf.variable_scope("conv-maxpool-{}".format(i)):
+                with tf.variable_scope("conv-{}-{}".format(K[i], F[i])):
+                    # Graph convolution operation
+                    x = self.graph_conv(x, L[i], K[i], F[i])
+
+                    # Add bias & apply non-linearity
+                    b = tf.Variable(tf.constant(0.1, shape=[1, 1, F[i]]), name="b")
+                    x = tf.nn.relu(x + b, name="relu")
+                with tf.variable_scope("maxpool-{}".format(P[i])):
+                    # Graph max-pooling operation
+                    x = self.graph_max_pool(x, P[i])
 
         # Add dropout
         with tf.variable_scope("dropout"):
