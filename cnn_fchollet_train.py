@@ -32,7 +32,7 @@ parser.add_argument("--num_features", type=int, nargs="+", default=[128, 128, 12
                     help="No. of features per filter (default: [128, 128, 128])")
 parser.add_argument("--pooling_sizes", type=int, nargs="+", default=[5, 5, 5],
                     help="Pooling sizes (default: [5, 5, 5])")
-parser.add_argument("--fc_layers", type=int, nargs="*", default=[128],
+parser.add_argument("--fc_layers", type=int, nargs="+", default=[128],
                     help="Fully-connected layers (default: [128])")
 
 parser.add_argument("--learning_rate", type=float, default=1e-3, help="Learning rate (default: 1e-3)")
