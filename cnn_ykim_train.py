@@ -19,13 +19,13 @@ model_name = "cnn_ykim"
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups",
+parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups", choices=data.AVAILABLE_DATASETS,
                     help="Dataset name (default: 20 Newsgroups)")
 parser.add_argument("--vocab_size", type=int, default=None,
                     help="Vocabulary size (default: None [see data.py])")
 
-parser.add_argument("--seq_len", type=int, default=10000,
-                    help="Sequence length for every pattern (default: 10000)")
+parser.add_argument("--seq_len", type=int, default=1000,
+                    help="Sequence length for every pattern (default: 1000)")
 parser.add_argument("--filter_widths", type=int, nargs="+", default=[3, 4, 5],
                     help="Filter widths (default: [3, 4, 5])")
 parser.add_argument("--num_features", type=int, default=128,

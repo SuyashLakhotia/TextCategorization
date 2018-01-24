@@ -24,6 +24,7 @@ class GraphCNN(object):
     """
 
     def __init__(self, filter_name, L, K, F, P, FC, batch_size, num_vertices, num_classes, l2_reg_lambda):
+        # Sanity checks
         assert len(L) >= len(F) == len(K) == len(P)  # verify consistency w.r.t. the no. of GCLs
         assert np.all(np.array(P) >= 1)  # all pool sizes >= 1
         p_log2 = np.where(np.array(P) > 1, np.log2(P), 0)

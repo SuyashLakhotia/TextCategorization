@@ -21,7 +21,7 @@ model_name = "gcnn_"
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups",
+parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups", choices=data.AVAILABLE_DATASETS,
                     help="Dataset name (default: 20 Newsgroups)")
 parser.add_argument("--vocab_size", type=int, default=None,
                     help="Vocabulary size (default: None [see data.py])")

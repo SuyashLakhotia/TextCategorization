@@ -6,6 +6,9 @@ import numpy as np
 import sklearn.datasets
 
 
+AVAILABLE_DATASETS = ["20 Newsgroups", "RT Polarity"]
+
+
 class TextDataset(object):
 
     def clean_text(self):
@@ -96,7 +99,7 @@ class TextDataset(object):
         Transforms documents to list of self.vocab indexes of the same length (i.e. maxlen). Do this at the
         very end.
         """
-        # Add "<UNK>" to vocabulary and create a reverse vocabulary lookup
+        # Add "<UNK>" to vocabulary (for padding) and create a reverse vocabulary lookup
         if self.vocab[-1] != "<UNK>":
             self.vocab = self.vocab + ["<UNK>"]
         reverse_vocab = {w: i for i, w in enumerate(self.vocab)}

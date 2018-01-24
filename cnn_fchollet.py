@@ -12,6 +12,7 @@ class FCholletCNN(object):
 
     def __init__(self, sequence_length, num_classes, vocab_size, embedding_size, embeddings, filter_widths,
                  num_features, pooling_sizes, fc_layers, l2_reg_lambda):
+        # Sanity checks
         assert len(filter_widths) == len(num_features) == len(pooling_sizes)
 
         # Placeholders for input, output and dropout
