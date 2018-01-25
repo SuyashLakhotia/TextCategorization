@@ -132,7 +132,7 @@ with tf.Graph().as_default():
                                       num_epochs, dropout_keep_prob, out_dir)
 
         # Output for results.csv
-        hyperparams = "{{seq_len: {}, filter_widths: {}, num_features: {}, fc_layers:{}}}".format(
-            seq_len, filter_widths, num_features, fc_layers)
+        hyperparams = "{{seq_len: {}, filter_widths: {}, num_features: {}, pooling_sizes: {}, fc_layers: {}}}".format(
+            seq_len, filter_widths, num_features, pooling_sizes, fc_layers)
         utils.print_result(args.dataset, model_name, max_accuracy, data_str, timestamp, hyperparams, args,
                            args.notes)
