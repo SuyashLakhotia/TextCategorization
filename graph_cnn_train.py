@@ -31,6 +31,7 @@ parser.add_argument("--coarsening_levels", type=int, default=0,
                     help="Coarsening levels for feature graph (default: 0)")
 
 parser.add_argument("--filter_name", type=str, default="chebyshev",
+                    choices=["chebyshev", "spline", "fourier"]
                     help="Name of graph convolutional filter (default: chebyshev)")
 parser.add_argument("--filter_sizes", type=int, nargs="+", default=[5], help="Filter sizes (default: [5])")
 parser.add_argument("--num_features", type=int, nargs="+", default=[32],
