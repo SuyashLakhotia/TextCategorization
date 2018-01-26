@@ -6,7 +6,7 @@ import numpy as np
 import sklearn.datasets
 
 
-AVAILABLE_DATASETS = ["20 Newsgroups", "RT Polarity"]
+AVAILABLE_DATASETS = ["20 Newsgroups", "RT Polarity", "RCV1-Vectors-Original", "RCV1-Vectors-Custom"]
 
 
 class TextDataset(object):
@@ -230,6 +230,71 @@ class TextRTPolarity(TextDataset):
             self.data = self.data_word2ind
 
 
+class TextRCV1_Vectors(TextDataset):
+    """
+    RCV1 dataset vectors.
+    Paper: http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf
+    Dataset retrieved from scikit-learn (http://scikit-learn.org/stable/datasets/rcv1.html)
+
+    Note: Dataset contains only cosine-normalized, log TF-IDF vectors (i.e. can only be used for baseline 
+    models & MLP).
+    """
+
+    def __init__(self, subset, shuffle=True, random_state=42):
+        dataset = sklearn.datasets.fetch_rcv1(subset=subset, shuffle=shuffle, random_state=random_state)
+        self.data = dataset.data
+        self.labels = dataset.target
+        self.class_names = dataset.target_names
+
+        assert len(self.class_names) == 103  # 103 categories according to LYRL2004
+        N, C = self.labels.shape
+        assert C == len(self.class_names)
+
+        N, V = self.data.shape
+        # TODO: Hacky workaround to create placeholder value
+        self.vocab = np.zeros(V)
+        self.orig_vocab_size = V
+
+    def preprocess(self, out, **params):
+        # Selection of classes
+        keep = ['C11', 'C12', 'C13', 'C14', 'C15', 'C16', 'C17', 'C18', 'C21', 'C22', 'C23', 'C24',
+                'C31', 'C32', 'C33', 'C34', 'C41', 'C42', 'E11', 'E12', 'E13', 'E14', 'E21', 'E31',
+                'E41', 'E51', 'E61', 'E71', 'G15', 'GCRIM', 'GDEF', 'GDIP', 'GDIS', 'GENT', 'GENV',
+                'GFAS', 'GHEA', 'GJOB', 'GMIL', 'GOBIT', 'GODD', 'GPOL', 'GPRO', 'GREL', 'GSCI',
+                'GSPO', 'GTOUR', 'GVIO', 'GVOTE', 'GWEA', 'GWELF', 'M11', 'M12', 'M13', 'M14']
+        assert len(keep) == 55  # 55 second-level categories according to LYRL2004
+        keep.remove('C15')  # 130,426 documents after removing multiple class documents
+        keep.remove('GOBIT')  # 5 documents after removing multiple class documents
+        keep.remove('GMIL')  # 1 document after removing multiple class documents
+        self.keep_classes(keep)
+
+        # Remove documents with multiple classes
+        classes_per_doc = np.array(self.labels.sum(axis=1)).squeeze()
+        self.labels = self.labels[classes_per_doc == 1]
+        self.data = self.data[classes_per_doc == 1, :]
+
+        # Convert target from one-hot sparse matrix to labels
+        N, C = self.labels.shape
+        labels = self.labels.tocoo()
+        self.labels = labels.col
+        assert self.labels.min() == 0
+        assert self.labels.max() == C - 1
+
+    def keep_classes(self, keep):
+        # Construct a lookup table for labels to keep
+        class_lookup = {}
+        for i, name in enumerate(self.class_names):
+            class_lookup[name] = i
+        self.class_names = keep
+
+        # Get indices of classes to keep & delete everything else
+        idx_keep = np.empty(len(keep))
+        for i, cat in enumerate(keep):
+            idx_keep[i] = class_lookup[cat]
+        self.labels = self.labels[:, idx_keep]
+        assert self.labels.shape[1] == len(keep)
+
+
 def load_dataset(dataset, out, vocab_size=None, **params):
     """
     Returns the train & test datasets for a chosen dataset.
@@ -258,6 +323,31 @@ def load_dataset(dataset, out, vocab_size=None, **params):
         test = copy.deepcopy(all_data)
         split_index = -1 * int(0.1 * float(all_data.data.shape[0]))
         train.documents, test.documents = all_data.documents[:split_index], all_data.documents[split_index:]
+        train.data, test.data = all_data.data[:split_index], all_data.data[split_index:]
+        train.labels, test.labels = all_data.labels[:split_index], all_data.labels[split_index:]
+    elif dataset == "RCV1-Vectors-Original":
+        assert out == "tfidf"
+        assert vocab_size == None
+
+        print("Loading training data...")
+        train = TextRCV1_Vectors(subset="train")
+        train.preprocess(out="tfidf", **params)
+
+        print("Loading test data...")
+        test = TextRCV1_Vectors(subset="test")
+        test.preprocess(out="tfidf", **params)
+    elif dataset == "RCV1-Vectors-Custom":
+        assert out == "tfidf"
+        assert vocab_size == None
+
+        print("Loading data...")
+        all_data = TextRCV1_Vectors(subset="all")
+        all_data.preprocess(out="tfidf", **params)
+
+        # Split train/test set
+        train = copy.deepcopy(all_data)
+        test = copy.deepcopy(all_data)
+        split_index = all_data.data.shape[0] // 2  # according to Bruna paper & Hinton paper on dropout
         train.data, test.data = all_data.data[:split_index], all_data.data[split_index:]
         train.labels, test.labels = all_data.labels[:split_index], all_data.labels[split_index:]
 
