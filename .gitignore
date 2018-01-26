@@ -1,6 +1,10 @@
+# Python files
 ENV/
 __pycache__/
 
+# TensorFlow logs
 runs/
+
+# Large data files
 data/GoogleNews-vectors-negative300.bin
 data/RCV1
