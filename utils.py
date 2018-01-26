@@ -1,6 +1,5 @@
 import subprocess
-
-import numpy as np
+import collections
 
 
 def print_data_info(train, x_train, x_test, y_train, y_test):
@@ -13,8 +12,8 @@ def print_data_info(train, x_train, x_test, y_train, y_test):
     print("")
     print("Train/Test Split: {}/{}".format(len(y_train), len(y_test)))
     print("Number of Classes: {}".format(len(train.class_names)))
-    print("Train Class Split: {}".format(np.bincount(y_train)))
-    print("Test Class Split: {}".format(np.bincount(y_test)))
+    print("Train Class Split: {}".format(collections.Counter(y_train)))
+    print("Test Class Split: {}".format(collections.Counter(y_test)))
     print("")
     print("x_train: {}".format(x_train.shape))
     print("x_test: {}".format(x_test.shape))
