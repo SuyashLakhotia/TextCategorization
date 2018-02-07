@@ -1,5 +1,7 @@
 import argparse
 import time
+import os
+import pickle
 
 import numpy as np
 from sklearn.svm import LinearSVC
@@ -58,3 +60,14 @@ bayes_acc = np.mean(predicted == y_test)
 timestamp = str(int(time.time()))
 utils.print_result(args.dataset, "Linear SVC", svm_acc, data_str, timestamp)
 utils.print_result(args.dataset, "Multinomial Naive Bayes", bayes_acc, data_str, timestamp)
+
+# Save models as pickles
+out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", args.dataset, "LinearSVC", timestamp))
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+pickle.dump(svm_clf, open(out_dir + "/pickle.pkl", "wb"))
+
+out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", args.dataset, "MultinomialNB", timestamp))
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+pickle.dump(bayes_clf, open(out_dir + "/pickle.pkl", "wb"))
