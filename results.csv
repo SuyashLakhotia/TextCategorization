@@ -1,4 +1,6 @@
 "Dataset","Model Name","Test Accuracy","Data Parameters","Model Hyperparameters","Training Hyperparameters","Notes","Latest Commit","Timestamp"
+"20 Newsgroups","Linear SVC","0.605546123","{format: 'count', vocab_size: 10000}","-","-","-","a4160ad","1518034514"
+"20 Newsgroups","Multinomial Naive Bayes","0.645161290","{format: 'count', vocab_size: 10000}","-","-","-","a4160ad","1518034514"
 "20 Newsgroups","Linear SVC","0.697226938","{format: 'tfidf', vocab_size: 10000}","-","-","-","b5521e7","1516638864"
 "20 Newsgroups","Multinomial Naive Bayes","0.695387663","{format: 'tfidf', vocab_size: 10000}","-","-","-","b5521e7","1516638864"
 "20 Newsgroups","mlp","0.709252954","{format: 'tfidf', vocab_size: 10000}","{layers: []}","{learning_rate: 0.001, dropout: 0.5, l2_reg: 0.0, batch_size: 64, epochs: 200}","-","3f55b77","1514560051"
