@@ -25,6 +25,8 @@ parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups", choice
                     help="Dataset name (default: 20 Newsgroups)")
 parser.add_argument("--vocab_size", type=int, default=None,
                     help="Vocabulary size (default: None [see data.py])")
+parser.add_argument("--out", type=str, default="tfidf", choices=["tfidf", "count"],
+                    help="Type of document vectors (default: tfidf)")
 
 parser.add_argument("--num_edges", type=int, default=16, help="No. of edges in feature graph (default: 16)")
 parser.add_argument("--coarsening_levels", type=int, default=0,
@@ -88,7 +90,7 @@ log_device_placement = False  # log placement of operations on devices
 # Data Preparation
 # ==================================================
 
-train, test = data.load_dataset(args.dataset, out="tfidf", vocab_size=args.vocab_size, norm="l1")
+train, test = data.load_dataset(args.dataset, out=args.out, vocab_size=args.vocab_size, norm="l1")
 
 x_train = train.data.astype(np.float32)
 x_test = test.data.astype(np.float32)
@@ -106,7 +108,7 @@ embeddings = data.load_word2vec(embedding_file, reverse_vocab, embedding_dim)
 utils.print_data_info(train, x_train, x_test, y_train, y_test)
 
 # To print for results.csv
-data_str = "{{format: 'tfidf', vocab_size: {}}}".format(len(train.vocab))
+data_str = "{{format: '{}', vocab_size: {}}}".format(args.out, len(train.vocab))
 
 
 # Feature Graph

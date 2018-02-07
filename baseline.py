@@ -20,6 +20,8 @@ parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups", choice
                     help="Dataset name (default: 20 Newsgroups)")
 parser.add_argument("--vocab_size", type=int, default=None,
                     help="Vocabulary size (default: None [see data.py])")
+parser.add_argument("--out", type=str, default="tfidf", choices=["tfidf", "count"],
+                    help="Type of document vectors (default: tfidf)")
 
 args = parser.parse_args()
 
@@ -27,7 +29,7 @@ args = parser.parse_args()
 # Data Preparation
 # ==================================================
 
-train, test = data.load_dataset(args.dataset, out="tfidf", vocab_size=args.vocab_size, norm="l1")
+train, test = data.load_dataset(args.dataset, out=args.out, vocab_size=args.vocab_size, norm="l1")
 
 x_train = train.data.astype(np.float32)
 x_test = test.data.astype(np.float32)
@@ -38,7 +40,7 @@ y_test = test.labels
 utils.print_data_info(train, x_train, x_test, y_train, y_test)
 
 # To print for results.csv
-data_str = "{{format: 'tfidf', vocab_size: {}}}".format(len(train.vocab))
+data_str = "{{format: '{}', vocab_size: {}}}".format(args.out, len(train.vocab))
 
 
 # Training

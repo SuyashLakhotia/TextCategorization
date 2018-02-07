@@ -165,7 +165,9 @@ class Text20News(TextDataset):
         self.keep_top_words(vocab_size)  # keep only the top vocab_size words
         self.remove_short_documents(nwords=5, vocab="selected")  # remove docs whose signal would be the zero vector
 
-        if out == "tfidf":
+        if out == "count":
+            self.data = self.data_count
+        elif out == "tfidf":
             self.tfidf_normalize(**params)  # transform count matrix into a normalized TF-IDF matrix
             self.data = self.data_tfidf
         elif out == "word2ind":
@@ -177,7 +179,9 @@ class Text20News(TextDataset):
         self.count_vectorize(vocabulary=train_vocab)
         self.remove_short_documents(nwords=5, vocab="selected")
 
-        if out == "tfidf":
+        if out == "count":
+            self.data = self.data_count
+        elif out == "tfidf":
             self.tfidf_normalize(**params)
             self.data = self.data_tfidf
         elif out == "word2ind":
@@ -221,7 +225,9 @@ class TextRTPolarity(TextDataset):
         self.orig_vocab_size = len(self.vocab)
         self.keep_top_words(vocab_size)  # keep only the top vocab_size words
 
-        if out == "tfidf":
+        if out == "count":
+            self.data = self.data_count
+        elif out == "tfidf":
             self.tfidf_normalize(**params)  # transform count matrix into a normalized TF-IDF matrix
             self.data = self.data_tfidf
         elif out == "word2ind":
