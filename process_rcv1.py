@@ -3,6 +3,8 @@ import html
 import pickle
 import xml.etree.ElementTree as ET
 
+from scipy.sparse import csr_matrix
+
 
 def save_data(data_counter, documents, labels):
     """
@@ -10,14 +12,15 @@ def save_data(data_counter, documents, labels):
     """
     global pkl_counter
     pickle.dump(documents, open(out_dir + "/documents-{}-{}.pkl".format(pkl_counter, data_counter), "wb"))
-    pickle.dump(labels, open(out_dir + "/labels-{}-{}.pkl".format(pkl_counter, data_counter), "wb"))
+    pickle.dump(csr_matrix(labels),
+                open(out_dir + "/labels-{}-{}.pkl".format(pkl_counter, data_counter), "wb"))
     pkl_counter += 1
 
 # Counter for pickled files
 pkl_counter = 0
 
 # Make directories for pickles
-out_dir = os.path.abspath(os.path.join(os.path.curdir, "data", "RCV1", "pickles", "RCV1-v2"))
+out_dir = os.path.abspath(os.path.join(os.path.curdir, "data", "RCV1", "pickles", "RCV1-v2_Sparse"))
 if not os.path.exists(out_dir):
     os.makedirs(out_dir)
 
