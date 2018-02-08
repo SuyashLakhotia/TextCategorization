@@ -25,16 +25,16 @@ if not os.path.exists(out_dir):
     os.makedirs(out_dir)
 
 # Get list of categories
-categories = list(open("./data/RCV1/RCV1_Uncompressed/appendices/rcv1.topics.txt", "r", encoding="utf-8")
+categories = list(open("data/RCV1/RCV1_Uncompressed/appendices/rcv1.topics.txt", "r", encoding="utf-8")
                   .read().splitlines())
 pickle.dump(categories, open(out_dir + "/class_names.pkl", "wb"))
 
 # Get list of RCV1-v2 IDs
-valid_ids = list(open("./data/RCV1/RCV1_Uncompressed/appendices/rcv1v2-ids.dat", "r", encoding="utf-8")
+valid_ids = list(open("data/RCV1/RCV1_Uncompressed/appendices/rcv1v2-ids.dat", "r", encoding="utf-8")
                  .read().splitlines())
 
 # Get mapping of IDs to categories
-_item_categories = list(open("./data/RCV1/RCV1_Uncompressed/appendices/rcv1-v2.topics.qrels", "r",
+_item_categories = list(open("data/RCV1/RCV1_Uncompressed/appendices/rcv1-v2.topics.qrels", "r",
                              encoding="utf-8").read().splitlines())
 _item_categories = [i.split() for i in _item_categories]
 item_categories = {}
@@ -45,7 +45,7 @@ for line in _item_categories:
         item_categories[line[1]] = [line[0]]
 
 # Get list of directories in uncompressed dataset
-uncompressed = os.listdir("./data/RCV1/RCV1_Uncompressed")
+uncompressed = os.listdir("data/RCV1/RCV1_Uncompressed")
 dirs = list(filter(lambda x: x.startswith("1"), uncompressed))
 dirs.sort()
 
@@ -53,11 +53,11 @@ data_counter = 0
 documents = []
 labels = []
 for d in dirs:
-    files = os.listdir("./data/RCV1/RCV1_Uncompressed/" + d)
+    files = os.listdir("data/RCV1/RCV1_Uncompressed/" + d)
     files.sort()
 
     for f in files:
-        tree = ET.parse("./data/RCV1/RCV1_Uncompressed/" + d + "/" + f)
+        tree = ET.parse("data/RCV1/RCV1_Uncompressed/" + d + "/" + f)
         root = tree.getroot()
 
         # Check for valid ID according to RCV1-v2
