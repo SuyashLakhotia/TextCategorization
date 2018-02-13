@@ -1,12 +1,15 @@
+import os
 import re
 import collections
 import copy
+import pickle
 
 import numpy as np
 import sklearn.datasets
+from scipy.sparse import csr_matrix, vstack
 
 
-AVAILABLE_DATASETS = ["20 Newsgroups", "RT Polarity", "RCV1-Vectors-Original", "RCV1-Vectors-Custom"]
+AVAILABLE_DATASETS = ["20 Newsgroups", "RT Polarity", "RCV1-Vectors-Original", "RCV1-Vectors-Custom", "RCV1-Custom"]
 
 
 class TextDataset(object):
@@ -237,6 +240,101 @@ class TextRTPolarity(TextDataset):
             self.data = self.data_word2ind
 
 
+class TextRCV1(TextDataset):
+    """
+    Reuters RCV1 dataset.
+    Paper: http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf
+    """
+
+    def __init__(self, shuffle=True, random_state=42):
+        self.documents, self.labels, self.class_names = self._load()
+
+        assert len(self.class_names) == 103  # 103 categories according to LYRL2004
+        N, C = self.labels.shape
+        assert C == len(self.class_names)
+
+        if shuffle:
+            # TODO: Implement shuffling of dataset? Violates chronological split recommended in LYRL2004.
+            pass
+
+    def preprocess(self, out, vocab_size=2000, **params):
+        # Selection of classes
+        keep = ['C11', 'C12', 'C13', 'C14', 'C15', 'C16', 'C17', 'C18', 'C21', 'C22', 'C23', 'C24',
+                'C31', 'C32', 'C33', 'C34', 'C41', 'C42', 'E11', 'E12', 'E13', 'E14', 'E21', 'E31',
+                'E41', 'E51', 'E61', 'E71', 'G15', 'GCRIM', 'GDEF', 'GDIP', 'GDIS', 'GENT', 'GENV',
+                'GFAS', 'GHEA', 'GJOB', 'GMIL', 'GOBIT', 'GODD', 'GPOL', 'GPRO', 'GREL', 'GSCI',
+                'GSPO', 'GTOUR', 'GVIO', 'GVOTE', 'GWEA', 'GWELF', 'M11', 'M12', 'M13', 'M14']
+        assert len(keep) == 55  # 55 second-level categories according to LYRL2004
+        keep.remove('C15')  # 130,426 documents after removing multiple class documents
+        keep.remove('GOBIT')  # 5 documents after removing multiple class documents
+        keep.remove('GMIL')  # 1 document after removing multiple class documents
+        self._keep_classes(keep)
+
+        # Remove documents with multiple classes
+        classes_per_doc = np.array(self.labels.sum(axis=1)).squeeze()
+        self.labels = self.labels[classes_per_doc == 1]
+        self.documents = [self.documents[i] for i in range(len(self.documents)) if classes_per_doc[i] == 1]
+
+        # Convert target from one-hot sparse matrix to labels
+        N, C = self.labels.shape
+        labels = self.labels.tocoo()
+        self.labels = labels.col
+        assert self.labels.min() == 0
+        assert self.labels.max() == C - 1
+
+        self.clean_text()  # tokenize & clean text
+        self.count_vectorize(stop_words="english")  # create term-document count matrix and vocabulary
+        self.orig_vocab_size = len(self.vocab)
+        self.keep_top_words(vocab_size)  # keep only the top vocab_size words
+        self.remove_short_documents(nwords=5, vocab="selected")  # remove docs whose signal would be the zero vector
+
+        if out == "count":
+            self.data = self.data_count
+        elif out == "tfidf":
+            self.tfidf_normalize(**params)  # transform count matrix into a normalized TF-IDF matrix
+            self.data = self.data_tfidf
+        elif out == "word2ind":
+            maxlen = max([len(x.split(" ")) for x in self.documents])
+            self.generate_word2ind(maxlen=maxlen)  # transform documents to sequences of vocab indexes
+            self.data = self.data_word2ind
+
+    def _load(self):
+        data_dir = os.path.abspath(os.path.join(os.path.curdir, "data", "RCV1", "pickles", "RCV1-v2_Sparse"))
+
+        class_names = pickle.load(open(data_dir + "/class_names.pkl", "rb"))
+
+        pkl_files = os.listdir(data_dir)
+        docs_pkls = list(filter(lambda x: x.startswith("documents"), pkl_files))
+        labels_pkls = list(filter(lambda x: x.startswith("labels"), pkl_files))
+        docs_pkls.sort()
+        labels_pkls.sort()
+
+        documents = []
+        for docs_pkl in docs_pkls:
+            documents += pickle.load(open(data_dir + "/" + docs_pkl, "rb"))
+
+        _labels = []
+        for labels_pkl in labels_pkls:
+            _labels += pickle.load(open(data_dir + "/" + labels_pkl, "rb"))
+        labels = vstack(_labels)
+
+        return documents, labels, class_names
+
+    def _keep_classes(self, keep):
+        # Construct a lookup table for labels to keep
+        class_lookup = {}
+        for i, name in enumerate(self.class_names):
+            class_lookup[name] = i
+        self.class_names = keep
+
+        # Get indices of classes to keep & delete everything else
+        idx_keep = np.empty(len(keep))
+        for i, cat in enumerate(keep):
+            idx_keep[i] = class_lookup[cat]
+        self.labels = self.labels[:, idx_keep]
+        assert self.labels.shape[1] == len(keep)
+
+
 class TextRCV1_Vectors(TextDataset):
     """
     Reuters RCV1 dataset vectors.
@@ -348,13 +446,28 @@ def load_dataset(dataset, out, vocab_size=None, **params):
         assert vocab_size == None
 
         print("Loading data...")
-        all_data = TextRCV1_Vectors(subset="all")
+        all_data = TextRCV1_Vectors(subset="all")  # TODO: shuffle=False? LYRL2004 chronological split
         all_data.preprocess(out="tfidf", **params)
 
         # Split train/test set
         train = copy.deepcopy(all_data)
         test = copy.deepcopy(all_data)
-        split_index = all_data.data.shape[0] // 2  # according to Bruna paper & Hinton paper on dropout
+        split_index = all_data.data.shape[0] // 2  # according to Bruna's paper & Hinton's dropout paper
+        train.data, test.data = all_data.data[:split_index], all_data.data[split_index:]
+        train.labels, test.labels = all_data.labels[:split_index], all_data.labels[split_index:]
+    elif dataset == "RCV1-Custom":
+        if vocab_size is None:
+            vocab_size = 2000
+
+        print("Loading data...")
+        all_data = TextRCV1()
+        all_data.preprocess(out=out, vocab_size=vocab_size, **params)
+
+        # Split train/test set
+        train = copy.deepcopy(all_data)
+        test = copy.deepcopy(all_data)
+        split_index = all_data.data.shape[0] // 2  # according to Bruna's paper & Hinton's dropout paper
+        train.documents, test.documents = all_data.documents[:split_index], all_data.documents[split_index:]
         train.data, test.data = all_data.data[:split_index], all_data.data[split_index:]
         train.labels, test.labels = all_data.labels[:split_index], all_data.labels[split_index:]
 
