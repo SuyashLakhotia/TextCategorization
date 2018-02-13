@@ -150,18 +150,12 @@ class Text20News(TextDataset):
         self.class_names = dataset.target_names
         assert max(self.labels) + 1 == len(self.class_names)
 
-    def remove_encoded_images(self, freq=1e3):
-        widx = self.vocab.index("ax")
-        wc = self.data_count[:, widx].toarray().squeeze()
-        idx = np.argwhere(wc < freq).squeeze()
-        self.keep_documents(idx)
-
     def preprocess_train(self, out, vocab_size=10000, **params):
         self.remove_short_documents(nwords=20, vocab="full")  # remove documents < 20 words in length
         self.clean_text()  # tokenize & clean text
         self.count_vectorize(stop_words="english")  # create term-document count matrix and vocabulary
         self.orig_vocab_size = len(self.vocab)
-        self.remove_encoded_images()  # remove encoded images
+        self._remove_encoded_images()  # remove encoded images
         self.keep_top_words(vocab_size)  # keep only the top vocab_size words
         self.remove_short_documents(nwords=5, vocab="selected")  # remove docs whose signal would be the zero vector
 
@@ -188,6 +182,12 @@ class Text20News(TextDataset):
             self.generate_word2ind(**params)
             self.data = self.data_word2ind
 
+    def _remove_encoded_images(self, freq=1e3):
+        widx = self.vocab.index("ax")
+        wc = self.data_count[:, widx].toarray().squeeze()
+        idx = np.argwhere(wc < freq).squeeze()
+        self.keep_documents(idx)
+
 
 class TextRTPolarity(TextDataset):
     """
@@ -195,7 +195,7 @@ class TextRTPolarity(TextDataset):
     http://www.cs.cornell.edu/people/pabo/movie-review-data/
     """
 
-    def __init__(self):
+    def __init__(self, shuffle=True, random_state=10):
         # Load data from files
         positive_examples = list(open("data/RTPolarity/rt-polarity.pos", "r", encoding="utf-8").readlines())
         positive_examples = [s.strip() for s in positive_examples]
@@ -214,10 +214,11 @@ class TextRTPolarity(TextDataset):
         self.class_names = ["pos", "neg"]
 
         # Shuffle data
-        np.random.seed(10)
-        shuffle_indices = np.random.permutation(np.arange(len(self.labels)))
-        self.documents = self.documents[shuffle_indices]
-        self.labels = self.labels[shuffle_indices]
+        if shuffle:
+            np.random.seed(random_state)
+            shuffle_indices = np.random.permutation(np.arange(len(self.labels)))
+            self.documents = self.documents[shuffle_indices]
+            self.labels = self.labels[shuffle_indices]
 
     def preprocess(self, out, vocab_size=5000, **params):
         self.clean_text()  # tokenize & clean text
@@ -238,7 +239,7 @@ class TextRTPolarity(TextDataset):
 
 class TextRCV1_Vectors(TextDataset):
     """
-    RCV1 dataset vectors.
+    Reuters RCV1 dataset vectors.
     Paper: http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf
     Dataset retrieved from scikit-learn (http://scikit-learn.org/stable/datasets/rcv1.html)
 
@@ -272,7 +273,7 @@ class TextRCV1_Vectors(TextDataset):
         keep.remove('C15')  # 130,426 documents after removing multiple class documents
         keep.remove('GOBIT')  # 5 documents after removing multiple class documents
         keep.remove('GMIL')  # 1 document after removing multiple class documents
-        self.keep_classes(keep)
+        self._keep_classes(keep)
 
         # Remove documents with multiple classes
         classes_per_doc = np.array(self.labels.sum(axis=1)).squeeze()
@@ -286,7 +287,7 @@ class TextRCV1_Vectors(TextDataset):
         assert self.labels.min() == 0
         assert self.labels.max() == C - 1
 
-    def keep_classes(self, keep):
+    def _keep_classes(self, keep):
         # Construct a lookup table for labels to keep
         class_lookup = {}
         for i, name in enumerate(self.class_names):
