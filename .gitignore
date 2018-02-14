@@ -5,9 +5,5 @@ __pycache__/
 # TensorFlow logs
 runs/
 
-# Large data files
-data/GoogleNews-vectors-negative300.bin
-data/RCV1/
-
-# Pickled datasets
-data/pickled_datasets/
+# Data files
+data/
