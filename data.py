@@ -9,7 +9,8 @@ import sklearn.datasets
 from scipy.sparse import csr_matrix, vstack
 
 
-AVAILABLE_DATASETS = ["20 Newsgroups", "RT Polarity", "RCV1-Vectors-Original", "RCV1-Vectors-Custom", "RCV1-Custom"]
+AVAILABLE_DATASETS = ["20 Newsgroups", "RT Polarity", "RCV1-Vectors-Original", "RCV1-Vectors-Custom",
+                      "RCV1-Custom"]
 
 
 class TextDataset(object):
@@ -526,17 +527,3 @@ def batch_iter(data, batch_size, num_epochs, shuffle=True):
                 indices.extend(np.arange(data_size))
         idx = [indices.popleft() for i in range(batch_size)]
         yield data[idx]
-
-
-def one_hot_labels(num_labels, labels):
-    """
-    Generate one-hot encoded label arrays.
-    """
-    labels_arr = []
-    for i in range(len(labels)):
-        label = [0 for j in range(num_labels)]
-        label[labels[i]] = 1
-        labels_arr.append(label)
-    y = np.array(labels_arr)
-
-    return y
