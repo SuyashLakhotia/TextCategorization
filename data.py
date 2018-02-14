@@ -11,6 +11,8 @@ from scipy.sparse import csr_matrix, vstack
 
 AVAILABLE_DATASETS = ["20 Newsgroups", "RT Polarity", "RCV1-Vectors-Original", "RCV1-Vectors-Custom",
                       "RCV1-Custom"]
+DEFAULT_VOCAB_SIZES = [10000, 5000, None, None,
+                       2000]
 
 
 class TextDataset(object):
@@ -403,31 +405,65 @@ class TextRCV1_Vectors(TextDataset):
 
 def load_dataset(dataset, out, vocab_size=None, **params):
     """
-    Returns the train & test datasets for a chosen dataset.
+    Returns the train & test datasets for a chosen dataset. The datasets are directly loaded from stored 
+    pickles (if available) or loaded from disk and preprocessed.
+    """
+    default_vocab_size = False
+    loaded = False
+
+    if vocab_size is None:
+        vocab_size = DEFAULT_VOCAB_SIZES[AVAILABLE_DATASETS.index(dataset)]
+
+    if vocab_size == DEFAULT_VOCAB_SIZES[AVAILABLE_DATASETS.index(dataset)]:
+        default_vocab_size = True
+
+    if default_vocab_size:
+        pickle_dir = os.path.abspath(os.path.join(os.path.curdir, "data", "pickled_datasets", dataset, out))
+        train_file = pickle_dir + "/train.pkl"
+        test_file = pickle_dir + "/test.pkl"
+
+        if os.path.exists(train_file) and os.path.exists(test_file):
+            train = pickle.load(open(train_file, "rb"))
+            test = pickle.load(open(test_file, "rb"))
+            loaded = True
+            print("Loaded dataset from pickles.")
+
+    if not loaded:
+        train, test = prepare_dataset(dataset, out, vocab_size, **params)
+        print("Dataset prepared.")
+
+        if default_vocab_size:
+            if not os.path.exists(pickle_dir):
+                os.makedirs(pickle_dir)
+            pickle.dump(train, open(train_file, "wb"))
+            pickle.dump(test, open(test_file, "wb"))
+            print("Dataset pickled.")
+
+    return train, test
+
+
+def prepare_dataset(dataset, out, vocab_size, **params):
+    """
+    Prepares the chosen dataset by loading it from disk, applying all the necessary preprocessing and 
+    splitting it into disjoint train/test datasets.
     """
     if dataset == "20 Newsgroups":
-        if vocab_size is None:
-            vocab_size = 10000
-
-        print("Loading training data...")
+        print("Preparing training data...")
         train = Text20News(subset="train")
         train.preprocess_train(out=out, vocab_size=vocab_size, **params)
 
-        print("Loading test data...")
+        print("Preparing test data...")
         test = Text20News(subset="test")
         test.preprocess_test(train_vocab=train.vocab, out=out, **params)
     elif dataset == "RT Polarity":
-        if vocab_size is None:
-            vocab_size = 5000
-
-        print("Loading data...")
+        print("Preparing data...")
         all_data = TextRTPolarity()
         all_data.preprocess(out=out, vocab_size=vocab_size, **params)
 
         # Split train/test set
         train = copy.deepcopy(all_data)
         test = copy.deepcopy(all_data)
-        split_index = -1 * int(0.1 * float(all_data.data.shape[0]))
+        split_index = -1 * int(0.1 * float(all_data.data.shape[0]))  # 10% of dataset is test set
         train.documents, test.documents = all_data.documents[:split_index], all_data.documents[split_index:]
         train.data, test.data = all_data.data[:split_index], all_data.data[split_index:]
         train.labels, test.labels = all_data.labels[:split_index], all_data.labels[split_index:]
@@ -435,19 +471,19 @@ def load_dataset(dataset, out, vocab_size=None, **params):
         assert out == "tfidf"
         assert vocab_size == None
 
-        print("Loading training data...")
+        print("Preparing training data...")
         train = TextRCV1_Vectors(subset="train")
         train.preprocess(out="tfidf", **params)
 
-        print("Loading test data...")
+        print("Preparing test data...")
         test = TextRCV1_Vectors(subset="test")
         test.preprocess(out="tfidf", **params)
     elif dataset == "RCV1-Vectors-Custom":
         assert out == "tfidf"
         assert vocab_size == None
 
-        print("Loading data...")
-        all_data = TextRCV1_Vectors(subset="all")  # TODO: shuffle=False? LYRL2004 chronological split
+        print("Preparing data...")
+        all_data = TextRCV1_Vectors(subset="all")  # TODO: shuffle=False? Chronological split violated?
         all_data.preprocess(out="tfidf", **params)
 
         # Split train/test set
@@ -457,10 +493,7 @@ def load_dataset(dataset, out, vocab_size=None, **params):
         train.data, test.data = all_data.data[:split_index], all_data.data[split_index:]
         train.labels, test.labels = all_data.labels[:split_index], all_data.labels[split_index:]
     elif dataset == "RCV1-Custom":
-        if vocab_size is None:
-            vocab_size = 2000
-
-        print("Loading data...")
+        print("Preparing data...")
         all_data = TextRCV1()
         all_data.preprocess(out=out, vocab_size=vocab_size, **params)
 
