@@ -46,7 +46,7 @@ def train_and_test(sess, model, x_train, y_train, x_test, y_test, learning_rate,
     checkpoint_prefix = os.path.join(checkpoint_dir, "model")
     if not os.path.exists(checkpoint_dir):
         os.makedirs(checkpoint_dir)
-    saver = tf.train.Saver(tf.global_variables(), max_to_keep=num_checkpoints)
+    saver = tf.train.Saver(tf.global_variables(), max_to_keep=num_checkpoints, save_relative_paths=True)
 
     # Initialize all variables
     sess.run(tf.global_variables_initializer())
