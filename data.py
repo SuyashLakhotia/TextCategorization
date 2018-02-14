@@ -203,9 +203,9 @@ class TextRTPolarity(TextDataset):
 
     def __init__(self, shuffle=True, random_state=10):
         # Load data from files
-        positive_examples = list(open("data/RTPolarity/rt-polarity.pos", "r", encoding="utf-8").readlines())
+        positive_examples = list(open("data/RT Polarity/rt-polarity.pos", "r", encoding="utf-8").readlines())
         positive_examples = [s.strip() for s in positive_examples]
-        negative_examples = list(open("data/RTPolarity/rt-polarity.neg", "r", encoding="utf-8").readlines())
+        negative_examples = list(open("data/RT Polarity/rt-polarity.neg", "r", encoding="utf-8").readlines())
         negative_examples = [s.strip() for s in negative_examples]
 
         # Save documents
