@@ -7,4 +7,7 @@ runs/
 
 # Large data files
 data/GoogleNews-vectors-negative300.bin
-data/RCV1
+data/RCV1/
+
+# Pickled datasets
+data/pickled_datasets/
