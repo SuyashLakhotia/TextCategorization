@@ -100,7 +100,7 @@ embeddings = data.load_word2vec(embedding_file, reverse_vocab, embedding_dim)
 utils.print_data_info(train, x_train, x_test, y_train, y_test)
 
 # To print for results.csv
-data_str = "{{format: 'word2ind', vocab_size: {}}}".format(len(train.vocab))
+data_str = "{{format: 'word2ind', vocab_size: {}, seq_len: {}}}".format(len(train.vocab), seq_len)
 
 
 # Training
@@ -132,7 +132,7 @@ with tf.Graph().as_default():
                                       num_epochs, dropout_keep_prob, out_dir)
 
         # Output for results.csv
-        hyperparams = "{{seq_len: {}, filter_widths: {}, num_features: {}, pooling_sizes: {}, fc_layers: {}}}".format(
-            seq_len, filter_widths, num_features, pooling_sizes, fc_layers)
+        hyperparams = "{{filter_widths: {}, num_features: {}, pooling_sizes: {}, fc_layers: {}}}".format(
+            filter_widths, num_features, pooling_sizes, fc_layers)
         utils.print_result(args.dataset, model_name, max_accuracy, data_str, timestamp, hyperparams, args,
                            args.notes)
