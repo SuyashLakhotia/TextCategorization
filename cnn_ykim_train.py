@@ -23,9 +23,9 @@ parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups", choice
                     help="Dataset name (default: 20 Newsgroups)")
 parser.add_argument("--vocab_size", type=int, default=None,
                     help="Vocabulary size (default: None [see data.py])")
+parser.add_argument("--seq_len", type=int, default=None,
+                    help="Sequence length for every pattern (default: None [see data.py])")
 
-parser.add_argument("--seq_len", type=int, default=1000,
-                    help="Sequence length for every pattern (default: 1000)")
 parser.add_argument("--filter_widths", type=int, nargs="+", default=[3, 4, 5],
                     help="Filter widths (default: [3, 4, 5])")
 parser.add_argument("--num_features", type=int, default=128,
@@ -83,7 +83,7 @@ x_test = test.data.astype(np.int32)
 y_train = train.labels
 y_test = test.labels
 
-# Correct sequence length if padding was overriden in data.py
+# Correct sequence length if seq_len was originally None
 seq_len = x_train.shape[1]
 
 # Construct reverse lookup vocabulary

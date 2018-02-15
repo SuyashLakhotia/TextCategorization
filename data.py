@@ -13,6 +13,8 @@ AVAILABLE_DATASETS = ["20 Newsgroups", "RT Polarity", "RCV1-Vectors-Original", "
                       "RCV1-Custom"]
 DEFAULT_VOCAB_SIZES = [10000, 5000, None, None,
                        2000]
+DEFAULT_SEQ_LENS = [1000, 56, None, None,
+                    1000]
 
 
 class TextDataset(object):
@@ -140,6 +142,16 @@ class TextDataset(object):
 
         self.data_word2ind = x
 
+    def generate_out(self, out, **params):
+        if out == "count":
+            self.data = self.data_count
+        elif out == "tfidf":
+            self.tfidf_normalize(**params)  # transform count matrix into a TF-IDF matrix
+            self.data = self.data_tfidf
+        elif out == "word2ind":
+            self.generate_word2ind(**params)  # transform documents to sequences of vocab indexes
+            self.data = self.data_word2ind
+
 
 class Text20News(TextDataset):
     """
@@ -164,29 +176,13 @@ class Text20News(TextDataset):
         self._remove_encoded_images()  # remove encoded images
         self.keep_top_words(vocab_size)  # keep only the top vocab_size words
         self.remove_short_documents(nwords=5, vocab="selected")  # remove docs whose signal would be the zero vector
-
-        if out == "count":
-            self.data = self.data_count
-        elif out == "tfidf":
-            self.tfidf_normalize(**params)  # transform count matrix into a normalized TF-IDF matrix
-            self.data = self.data_tfidf
-        elif out == "word2ind":
-            self.generate_word2ind(**params)  # transform documents to sequences of vocab indexes
-            self.data = self.data_word2ind
+        self.generate_out(out, **params)  # generate final self.data
 
     def preprocess_test(self, train_vocab, out, **params):
         self.clean_text()
         self.count_vectorize(vocabulary=train_vocab)
         self.remove_short_documents(nwords=5, vocab="selected")
-
-        if out == "count":
-            self.data = self.data_count
-        elif out == "tfidf":
-            self.tfidf_normalize(**params)
-            self.data = self.data_tfidf
-        elif out == "word2ind":
-            self.generate_word2ind(**params)
-            self.data = self.data_word2ind
+        self.generate_out(out, **params)
 
     def _remove_encoded_images(self, freq=1e3):
         widx = self.vocab.index("ax")
@@ -231,16 +227,7 @@ class TextRTPolarity(TextDataset):
         self.count_vectorize()  # create term-document count matrix and vocabulary
         self.orig_vocab_size = len(self.vocab)
         self.keep_top_words(vocab_size)  # keep only the top vocab_size words
-
-        if out == "count":
-            self.data = self.data_count
-        elif out == "tfidf":
-            self.tfidf_normalize(**params)  # transform count matrix into a normalized TF-IDF matrix
-            self.data = self.data_tfidf
-        elif out == "word2ind":
-            maxlen = max([len(x.split(" ")) for x in self.documents])
-            self.generate_word2ind(maxlen=maxlen)  # transform documents to sequences of vocab indexes
-            self.data = self.data_word2ind
+        self.generate_out(out, **params)  # generate final self.data
 
 
 class TextRCV1(TextDataset):
@@ -290,16 +277,7 @@ class TextRCV1(TextDataset):
         self.orig_vocab_size = len(self.vocab)
         self.keep_top_words(vocab_size)  # keep only the top vocab_size words
         self.remove_short_documents(nwords=5, vocab="selected")  # remove docs whose signal would be the zero vector
-
-        if out == "count":
-            self.data = self.data_count
-        elif out == "tfidf":
-            self.tfidf_normalize(**params)  # transform count matrix into a normalized TF-IDF matrix
-            self.data = self.data_tfidf
-        elif out == "word2ind":
-            maxlen = max([len(x.split(" ")) for x in self.documents])
-            self.generate_word2ind(maxlen=maxlen)  # transform documents to sequences of vocab indexes
-            self.data = self.data_word2ind
+        self.generate_out(out, **params)  # generate final self.data
 
     def _load(self):
         data_dir = os.path.abspath(os.path.join(os.path.curdir, "data", "RCV1", "pickles", "RCV1-v2_Sparse"))
@@ -409,15 +387,24 @@ def load_dataset(dataset, out, vocab_size=None, **params):
     pickles (if available) or loaded from disk and preprocessed.
     """
     default_vocab_size = False
+    default_seq_len = False
     loaded = False
 
     if vocab_size is None:
         vocab_size = DEFAULT_VOCAB_SIZES[AVAILABLE_DATASETS.index(dataset)]
-
-    if vocab_size == DEFAULT_VOCAB_SIZES[AVAILABLE_DATASETS.index(dataset)]:
+        default_vocab_size = True
+    elif vocab_size == DEFAULT_VOCAB_SIZES[AVAILABLE_DATASETS.index(dataset)]:
         default_vocab_size = True
 
-    if default_vocab_size:
+    if out != "word2ind":
+        default_seq_len = True
+    elif params["maxlen"] is None:
+        params["maxlen"] = DEFAULT_SEQ_LENS[AVAILABLE_DATASETS.index(dataset)]
+        default_seq_len = True
+    elif params["maxlen"] == DEFAULT_SEQ_LENS[AVAILABLE_DATASETS.index(dataset)]:
+        default_seq_len = True
+
+    if default_vocab_size and default_seq_len:
         pickle_dir = os.path.abspath(os.path.join(os.path.curdir, "data", "pickled_datasets", dataset, out))
         train_file = pickle_dir + "/train.pkl"
         test_file = pickle_dir + "/test.pkl"
@@ -432,7 +419,7 @@ def load_dataset(dataset, out, vocab_size=None, **params):
         train, test = prepare_dataset(dataset, out, vocab_size, **params)
         print("Dataset prepared.")
 
-        if default_vocab_size:
+        if default_vocab_size and default_seq_len:
             if not os.path.exists(pickle_dir):
                 os.makedirs(pickle_dir)
             pickle.dump(train, open(train_file, "wb"))
