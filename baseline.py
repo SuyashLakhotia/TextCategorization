@@ -23,6 +23,10 @@ parser.add_argument("--vocab_size", type=int, default=None,
 parser.add_argument("--out", type=str, default="tfidf", choices=["tfidf", "count"],
                     help="Type of document vectors (default: tfidf)")
 
+parser.add_argument("--no-save", action="store_false", dest="save",
+                    help="Include this flag if models should not be pickled.")
+parser.set_defaults(save=True)
+
 args = parser.parse_args()
 
 
@@ -64,12 +68,13 @@ utils.print_result(args.dataset, "Linear SVC", svm_acc, data_str, timestamp)
 utils.print_result(args.dataset, "Multinomial Naive Bayes", bayes_acc, data_str, timestamp)
 
 # Save models as pickles
-out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", args.dataset, "LinearSVC", timestamp))
-if not os.path.exists(out_dir):
-    os.makedirs(out_dir)
-pickle.dump(svm_clf, open(out_dir + "/pickle.pkl", "wb"))
+if args.save:
+    out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", args.dataset, "LinearSVC", timestamp))
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+    pickle.dump(svm_clf, open(out_dir + "/pickle.pkl", "wb"))
 
-out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", args.dataset, "MultinomialNB", timestamp))
-if not os.path.exists(out_dir):
-    os.makedirs(out_dir)
-pickle.dump(bayes_clf, open(out_dir + "/pickle.pkl", "wb"))
+    out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", args.dataset, "MultinomialNB", timestamp))
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+    pickle.dump(bayes_clf, open(out_dir + "/pickle.pkl", "wb"))
