@@ -97,7 +97,7 @@ class TextDataset(object):
 
     def tfidf_normalize(self, norm="l1"):
         """
-        TF-IDF transform & normalize data_count to data_tfidf. Do this at the very end.
+        Transform data_count to tf-idf and store in data_tfidf. Do this at the very end.
         """
         transformer = sklearn.feature_extraction.text.TfidfTransformer(norm=norm)
         self.data_tfidf = transformer.fit_transform(self.data_count)
@@ -146,7 +146,7 @@ class TextDataset(object):
         if out == "count":
             self.data = self.data_count
         elif out == "tfidf":
-            self.tfidf_normalize(**params)  # transform count matrix into a TF-IDF matrix
+            self.tfidf_normalize(**params)  # transform count matrix into a tf-idf matrix
             self.data = self.data_tfidf
         elif out == "word2ind":
             self.generate_word2ind(**params)  # transform documents to sequences of vocab indexes
@@ -322,7 +322,7 @@ class TextRCV1_Vectors(TextDataset):
     Paper: http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf
     Dataset retrieved from scikit-learn (http://scikit-learn.org/stable/datasets/rcv1.html)
 
-    Note: Dataset contains only cosine-normalized, log TF-IDF vectors (i.e. can only be used for baseline 
+    Note: Dataset contains only cosine-normalized, log tf-idf vectors (i.e. can only be used for baseline 
     models & MLP).
     """
 
