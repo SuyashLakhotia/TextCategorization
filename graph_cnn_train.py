@@ -90,7 +90,7 @@ log_device_placement = False  # log placement of operations on devices
 # Data Preparation
 # ==================================================
 
-train, test = data.load_dataset(args.dataset, out=args.out, vocab_size=args.vocab_size, norm="l1")
+train, test = data.load_dataset(args.dataset, out=args.out, vocab_size=args.vocab_size)
 
 x_train = train.data.astype(np.float32)
 x_test = test.data.astype(np.float32)

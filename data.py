@@ -95,11 +95,11 @@ class TextDataset(object):
         self.vocab = self.count_vectorizer.get_feature_names()
         assert len(self.vocab) == self.data_count.shape[1]
 
-    def tfidf_normalize(self, norm="l1"):
+    def tfidf_normalize(self):
         """
         Transform data_count to tf-idf and store in data_tfidf. Do this at the very end.
         """
-        transformer = sklearn.feature_extraction.text.TfidfTransformer(norm=norm)
+        transformer = sklearn.feature_extraction.text.TfidfTransformer(norm="l1")
         self.data_tfidf = transformer.fit_transform(self.data_count)
 
     def generate_word2ind(self, maxlen=None, padding="post", truncating="post"):
