@@ -103,8 +103,8 @@ def train_and_test(sess, model, x_train, y_train, x_test, y_test, learning_rate,
 
         time_str = datetime.datetime.now().isoformat()
         cur_epoch = step * batch_size / len(x_train)
-        print("{}: Step {}, Epoch {:.2f}, Loss {:g}, Accuracy {:g}".format(time_str, step, cur_epoch, loss,
-                                                                           accuracy))
+        print("{}: Step {}, Epoch {:.2f} / {}, Loss {:g}, Accuracy {:g}".format(time_str, step, cur_epoch,
+                                                                                num_epochs, loss, accuracy))
 
         summary = tf.Summary()
         summary.value.add(tag="loss_1", simple_value=loss)
