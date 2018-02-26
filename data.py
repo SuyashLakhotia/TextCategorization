@@ -386,45 +386,37 @@ def load_dataset(dataset, out, vocab_size=None, **params):
     Returns the train & test datasets for a chosen dataset. The datasets are directly loaded from stored 
     pickles (if available) or loaded from disk and preprocessed.
     """
-    default_vocab_size = False
-    default_seq_len = False
     loaded = False
 
     if vocab_size is None:
         vocab_size = DEFAULT_VOCAB_SIZES[AVAILABLE_DATASETS.index(dataset)]
-        default_vocab_size = True
-    elif vocab_size == DEFAULT_VOCAB_SIZES[AVAILABLE_DATASETS.index(dataset)]:
-        default_vocab_size = True
 
-    if out != "word2ind":
-        default_seq_len = True
-    elif params["maxlen"] is None:
+    if out == "word2ind" and params["maxlen"] is None:
         params["maxlen"] = DEFAULT_SEQ_LENS[AVAILABLE_DATASETS.index(dataset)]
-        default_seq_len = True
-    elif params["maxlen"] == DEFAULT_SEQ_LENS[AVAILABLE_DATASETS.index(dataset)]:
-        default_seq_len = True
 
-    if default_vocab_size and default_seq_len:
-        pickle_dir = os.path.abspath(os.path.join(os.path.curdir, "data", "pickled_datasets", dataset, out))
-        train_file = pickle_dir + "/train.pkl"
-        test_file = pickle_dir + "/test.pkl"
+    pickle_dir = os.path.abspath(os.path.join(os.path.curdir, "data", "pickled_datasets", dataset,
+                                              "{}".format(vocab_size), out))
+    if out == "word2ind":
+        pickle_dir = pickle_dir + "/{}".format(params["maxlen"])
 
-        if os.path.exists(train_file) and os.path.exists(test_file):
-            train = pickle.load(open(train_file, "rb"))
-            test = pickle.load(open(test_file, "rb"))
-            loaded = True
-            print("Loaded dataset from pickles.")
+    train_file = pickle_dir + "/train.pkl"
+    test_file = pickle_dir + "/test.pkl"
+
+    if os.path.exists(train_file) and os.path.exists(test_file):
+        train = pickle.load(open(train_file, "rb"))
+        test = pickle.load(open(test_file, "rb"))
+        loaded = True
+        print("Loaded dataset from pickles.")
 
     if not loaded:
         train, test = prepare_dataset(dataset, out, vocab_size, **params)
         print("Dataset prepared.")
 
-        if default_vocab_size and default_seq_len:
-            if not os.path.exists(pickle_dir):
-                os.makedirs(pickle_dir)
-            pickle.dump(train, open(train_file, "wb"))
-            pickle.dump(test, open(test_file, "wb"))
-            print("Dataset pickled.")
+        if not os.path.exists(pickle_dir):
+            os.makedirs(pickle_dir)
+        pickle.dump(train, open(train_file, "wb"))
+        pickle.dump(test, open(test_file, "wb"))
+        print("Dataset pickled.")
 
     return train, test
 
