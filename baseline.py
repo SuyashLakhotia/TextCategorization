@@ -66,7 +66,8 @@ if args.model == "all" or args.model == "linear_svc":
     svm_clf.fit(x_train, y_train)
     predicted = svm_clf.predict(x_test)
     svm_acc = np.mean(predicted == y_test)
-    utils.print_result(args.dataset, "linear_svc", svm_acc, data_str, timestamp)
+    utils.print_result(args.dataset, "linear_svc", svm_acc, data_str, timestamp,
+                       hyperparams="{{C: {}}}".format(args.C))
 
 # Multinomial Naive Bayes Classifier
 if args.model == "all" or args.model == "multinomial_nb":
@@ -74,7 +75,8 @@ if args.model == "all" or args.model == "multinomial_nb":
     bayes_clf.fit(x_train, y_train)
     predicted = bayes_clf.predict(x_test)
     bayes_acc = np.mean(predicted == y_test)
-    utils.print_result(args.dataset, "multinomial_nb", bayes_acc, data_str, timestamp)
+    utils.print_result(args.dataset, "multinomial_nb", bayes_acc, data_str, timestamp,
+                       hyperparams="{{alpha: {}}}".format(args.alpha))
 
 # Save models as pickles
 if args.save:
