@@ -1,11 +1,14 @@
 import argparse
 import sys
 import os
+import collections
+import time
 
 # NOTE: Run from root directory of repository
 sys.path.insert(0, os.path.abspath(''))
 
 import numpy as np
+from scipy.sparse import vstack
 from sklearn.svm import LinearSVC
 from sklearn.naive_bayes import MultinomialNB
 
@@ -41,8 +44,22 @@ x_test = test.data.astype(np.float32)
 y_train = train.labels
 y_test = test.labels
 
+# Split training set & validation set
+validation_index = -1 * int(0.1 * float(len(y_train)))
+x_train, x_valid = x_train[:validation_index], x_train[validation_index:]
+y_train, y_valid = y_train[:validation_index], y_train[validation_index:]
+
 # Print information about the dataset
-utils.print_data_info(train, x_train, x_test, y_train, y_test)
+print("")
+print("Original Vocabulary Size: {}".format(train.orig_vocab_size))
+print("Vocabulary Size (Reduced): {}".format(len(train.vocab)))
+print("")
+print("Train/Validation/Test Split: {}/{}/{}".format(len(y_train), len(y_valid), len(y_test)))
+print("Number of Classes: {}".format(len(train.class_names)))
+print("Train Class Split: {}".format(collections.Counter(y_train)))
+print("Validation Class Split: {}".format(collections.Counter(y_valid)))
+print("Test Class Split: {}".format(collections.Counter(y_test)))
+print("")
 
 # To print at the end of script execution
 data_str = "{{dataset: {}, format: '{}', vocab_size: {}}}".format(args.dataset, args.out, len(train.vocab))
@@ -58,9 +75,24 @@ for i in C_arr:
         continue
     svm_clf = LinearSVC(C=i)
     svm_clf.fit(x_train, y_train)
-    predicted = svm_clf.predict(x_test)
-    svm_acc = np.mean(predicted == y_test)
+    predicted = svm_clf.predict(x_valid)
+    svm_acc = np.mean(predicted == y_valid)
     acc_dict[i] = svm_acc
 
-print(data_str)
 print(acc_dict)
+print("")
+
+x_train = vstack((x_train, x_valid))
+y_train = np.concatenate((y_train, y_valid), axis=0)
+max_C = max(acc_dict.keys(), key=(lambda key: acc_dict[key]))
+
+print("x_train: {}".format(x_train.shape))
+print("y_train: {}".format(y_train.shape))
+
+svm_clf = LinearSVC(C=max_C)
+svm_clf.fit(x_train, y_train)
+predicted = svm_clf.predict(x_test)
+svm_acc = np.mean(predicted == y_test)
+
+utils.print_result(args.dataset, "linear_svc", svm_acc, data_str, str(int(time.time())),
+                   hyperparams="{{C: {}}}".format(max_C))
