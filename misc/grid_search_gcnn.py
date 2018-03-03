@@ -37,7 +37,7 @@ def run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _num_edges, _
     # Training parameters
     learning_rate = 1e-3  # learning rate
     batch_size = 64  # batch size
-    num_epochs = 25  # no. of training epochs
+    num_epochs = 20  # no. of training epochs
 
     # Regularization parameters
     dropout_keep_prob = 0.5  # dropout keep probability
@@ -146,8 +146,8 @@ print("")
 # ==================================================
 
 num_edges_arr = [4, 8, 16]
-filter_size_arr = [2, 3, 4, 5]
-num_features_arr = [8, 16, 32, 64]
+filter_size_arr = [2, 4, 5]
+num_features_arr = [8, 16, 32]
 acc_dict = {}
 
 for _num_edges, _filter_size, _num_features in product(num_edges_arr, filter_size_arr, num_features_arr):
