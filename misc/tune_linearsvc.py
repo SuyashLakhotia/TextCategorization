@@ -78,6 +78,7 @@ for i in C_arr:
     predicted = svm_clf.predict(x_valid)
     svm_acc = np.mean(predicted == y_valid)
     acc_dict[i] = svm_acc
+    print("C {:.2f}: {:g}".format(i, svm_acc))
 
 print(acc_dict)
 print("")
