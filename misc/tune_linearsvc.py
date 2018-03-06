@@ -87,9 +87,6 @@ x_train = vstack((x_train, x_valid))
 y_train = np.concatenate((y_train, y_valid), axis=0)
 max_C = max(acc_dict.keys(), key=(lambda key: acc_dict[key]))
 
-print("x_train: {}".format(x_train.shape))
-print("y_train: {}".format(y_train.shape))
-
 svm_clf = LinearSVC(C=max_C)
 svm_clf.fit(x_train, y_train)
 predicted = svm_clf.predict(x_test)

@@ -59,6 +59,7 @@
 "RCV1-Custom","multinomial_nb","0.658467410","{format: 'tfidf', vocab_size: 5000}","{alpha: 0.01}","-","-","d9f432e","1519484503"
 "RCV1-Custom","linear_svc","0.895170386","{format: 'tfidf', vocab_size: 10000}","{C: 1.0}","-","-","d9f432e","1519484250"
 "RCV1-Custom","multinomial_nb","0.675555936","{format: 'tfidf', vocab_size: 10000}","{alpha: 0.01}","-","-","d9f432e","1519484250"
+"RCV1-Custom","linear_svc","0.911878215","{format: 'tfidf', vocab_size: 10000}","{C: 14.3}","-","-","b9df4c8","1520320070"
 "RCV1-Custom","mlp","0.898617073","{format: 'tfidf', vocab_size: 2000}","{layers: []}","{learning_rate: 0.001, dropout: 0.5, l2_reg: 0.0, batch_size: 64, epochs: 200}","-","f8d9b9e","1518542234"
 "RCV1-Custom","mlp","0.902019664","{format: 'tfidf', vocab_size: 2000}","{layers: [2000, 1000]}","{learning_rate: 0.001, dropout: 0.5, l2_reg: 0.0, batch_size: 64, epochs: 100}","M. Henaff et al. Baseline Model","cfa5043","1518842040"
 "RCV1-Custom","mlp","0.910050871","{format: 'tfidf', vocab_size: 10000}","{layers: [2000, 1000]}","{learning_rate: 0.001, dropout: 0.5, l2_reg: 0.0, batch_size: 64, epochs: 50}","-","b9df4c8","1520060333"
