@@ -144,8 +144,10 @@ print("")
 dropout_arr = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 acc_dict = {}
 
-for _dropout in product(dropout_arr):
+for _dropout in dropout_arr:
     timestamp, max_accuracy = run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _dropout)
-    acc_dict["{}".format(_dropout)] = (timestamp, max_accuracy)
+    acc_dict["{}".format(_dropout)] = (max_accuracy, timestamp)
+    with open("output.txt", "a") as file:
+        file.write("{} {} {}".format(_dropout, max_accuracy, timestamp))
 
 print(acc_dict)
