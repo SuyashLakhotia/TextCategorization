@@ -24,11 +24,24 @@ def run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _num_edges, _
 
     # Feature graph parameters
     num_edges = _num_edges
+    coarsening_levels = 0
 
     # Model parameters
+    filter_name = "chebyshev"  # name of graph conv filter
     model_name = "gcnn_chebyshev"  # append filter name to model name
     filter_sizes = [_filter_size]  # filter sizes
     num_features = [_num_features]  # number of features per GCL
+    pooling_sizes = [1]  # pooling sizes (1 (no pooling) or power of 2)
+    fc_layers = []  # fully-connected layers
+
+    # Training parameters
+    learning_rate = 1e-3  # learning rate
+    batch_size = 64  # batch size
+    num_epochs = 20  # no. of training epochs
+
+    # Regularization parameters
+    dropout_keep_prob = 0.5  # dropout keep probability
+    l2_reg_lambda = 0.0  # L2 regularization lambda
 
     # Feature Graph
     # ==================================================
@@ -39,8 +52,12 @@ def run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _num_edges, _
     A = graph.replace_random_edges(A, 0)
 
     # Compute coarsened graphs
-    graphs, perm = coarsening.coarsen(A, levels=0, self_connections=False)
+    graphs, perm = coarsening.coarsen(A, levels=coarsening_levels, self_connections=False)
     laplacians = [graph.laplacian(A, normalized=True) for A in graphs]
+
+    # Override filter sizes for non-param Fourier filter
+    if filter_name == "fourier":
+        filter_sizes = [l.shape[0] for l in laplacians]
 
     del dist, idx, A, graphs  # don't need these anymore
 
@@ -57,16 +74,16 @@ def run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _num_edges, _
         sess = tf.Session(config=session_conf)
         with sess.as_default():
             # Init model
-            gcnn = GraphCNN(filter_name="chebyshev",
+            gcnn = GraphCNN(filter_name=filter_name,
                             L=laplacians,
                             K=filter_sizes,
                             F=num_features,
-                            P=[1],
-                            FC=[],
-                            batch_size=64,
+                            P=pooling_sizes,
+                            FC=fc_layers,
+                            batch_size=batch_size,
                             num_vertices=x_train.shape[1],
                             num_classes=len(train.class_names),
-                            l2_reg_lambda=0.0)
+                            l2_reg_lambda=l2_reg_lambda)
 
             # Convert sparse matrices to arrays
             x_train = np.squeeze([x_i.toarray() for x_i in x_train])
@@ -78,8 +95,8 @@ def run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _num_edges, _
                                                    timestamp))
 
             # Train and test model
-            max_accuracy = train_and_test(sess, gcnn, x_train, y_train, x_valid, y_valid, 1e-3, 64, 20, 0.5,
-                                          out_dir)
+            max_accuracy = train_and_test(sess, gcnn, x_train, y_train, x_valid, y_valid, learning_rate,
+                                          batch_size, num_epochs, dropout_keep_prob, out_dir)
 
             return timestamp, max_accuracy
 
