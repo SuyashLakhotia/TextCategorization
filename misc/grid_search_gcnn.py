@@ -18,19 +18,19 @@ from graph_cnn import GraphCNN
 from train import train_and_test
 
 
-def run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _num_edges, _filter_size, _num_features):
+def run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _dropout):
     # Parameters
     # ==================================================
 
     # Feature graph parameters
-    num_edges = _num_edges
+    num_edges = 16
     coarsening_levels = 0
 
     # Model parameters
     filter_name = "chebyshev"  # name of graph conv filter
     model_name = "gcnn_chebyshev"  # append filter name to model name
-    filter_sizes = [_filter_size]  # filter sizes
-    num_features = [_num_features]  # number of features per GCL
+    filter_sizes = [4]  # filter sizes
+    num_features = [8]  # number of features per GCL
     pooling_sizes = [1]  # pooling sizes (1 (no pooling) or power of 2)
     fc_layers = []  # fully-connected layers
 
@@ -40,7 +40,7 @@ def run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _num_edges, _
     num_epochs = 20  # no. of training epochs
 
     # Regularization parameters
-    dropout_keep_prob = 0.5  # dropout keep probability
+    dropout_keep_prob = _dropout  # dropout keep probability
     l2_reg_lambda = 0.0  # L2 regularization lambda
 
     # Feature Graph
@@ -141,14 +141,11 @@ print("")
 # Grid Search
 # ==================================================
 
-num_edges_arr = [4, 8, 16]
-filter_size_arr = [2, 4, 5]
-num_features_arr = [8, 16, 32]
+dropout_arr = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 acc_dict = {}
 
-for _num_edges, _filter_size, _num_features in product(num_edges_arr, filter_size_arr, num_features_arr):
-    timestamp, max_accuracy = run_experiment(x_train, y_train, x_valid, y_valid, embeddings,
-                                             _num_edges, _filter_size, _num_features)
-    acc_dict["{}, {}, {}".format(_num_edges, _filter_size, _num_features)] = (timestamp, max_accuracy)
+for _dropout in product(dropout_arr):
+    timestamp, max_accuracy = run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _dropout)
+    acc_dict["{}".format(_dropout)] = (timestamp, max_accuracy)
 
 print(acc_dict)
