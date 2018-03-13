@@ -72,7 +72,6 @@ class YKimCNN(object):
                 b = tf.Variable(tf.constant(0.1, shape=[num_units]), name="b")
 
                 l2_loss += tf.nn.l2_loss(W)
-                l2_loss += tf.nn.l2_loss(b)
 
                 self.x = tf.nn.xw_plus_b(self.x, W, b)
                 self.x = tf.nn.relu(self.x)
@@ -86,7 +85,6 @@ class YKimCNN(object):
             b = tf.Variable(tf.constant(0.1, shape=[num_classes]), name="b")
 
             l2_loss += tf.nn.l2_loss(W)
-            l2_loss += tf.nn.l2_loss(b)
 
             self.scores = tf.nn.xw_plus_b(self.x, W, b, name="scores")
             self.predictions = tf.argmax(self.scores, 1, name="predictions")
