@@ -148,6 +148,6 @@ for _dropout in dropout_arr:
     timestamp, max_accuracy = run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _dropout)
     acc_dict["{}".format(_dropout)] = (max_accuracy, timestamp)
     with open("output.txt", "a") as file:
-        file.write("{} {} {}".format(_dropout, max_accuracy, timestamp))
+        file.write("{} {} {}\n".format(_dropout, max_accuracy, timestamp))
 
 print(acc_dict)
