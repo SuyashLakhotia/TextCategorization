@@ -10,7 +10,7 @@ from scipy.sparse import csr_matrix, vstack
 
 
 AVAILABLE_DATASETS = ["20 Newsgroups", "RT Polarity", "RCV1", "RCV1-Vectors-Original", "RCV1-Vectors-Custom"]
-DEFAULT_VOCAB_SIZES = [10000, 5000, 2000, None, None]
+DEFAULT_VOCAB_SIZES = [10000, 5000, 10000, None, None]
 DEFAULT_SEQ_LENS = [1000, 56, 1000, None, None]
 
 
