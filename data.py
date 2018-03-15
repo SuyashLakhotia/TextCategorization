@@ -233,16 +233,12 @@ class TextRCV1(TextDataset):
     Paper: http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf
     """
 
-    def __init__(self, shuffle=True, random_state=42):
+    def __init__(self):
         self.documents, self.labels, self.class_names = self._load()
 
         assert len(self.class_names) == 103  # 103 categories according to LYRL2004
         N, C = self.labels.shape
         assert C == len(self.class_names)
-
-        if shuffle:
-            # TODO: Implement shuffling of dataset? Violates chronological split recommended in LYRL2004.
-            pass
 
     def preprocess(self, out, vocab_size=2000, **params):
         # Selection of classes
@@ -324,6 +320,11 @@ class TextRCV1_Vectors(TextDataset):
     """
 
     def __init__(self, subset, shuffle=True, random_state=42):
+        if subset == "all":
+            shuffle = False  # chronological split violated if shuffled
+        else:
+            shuffle = shuffle
+
         dataset = sklearn.datasets.fetch_rcv1(subset=subset, shuffle=shuffle, random_state=random_state)
         self.data = dataset.data
         self.labels = dataset.target
@@ -334,8 +335,7 @@ class TextRCV1_Vectors(TextDataset):
         assert C == len(self.class_names)
 
         N, V = self.data.shape
-        # TODO: Hacky workaround to create placeholder value
-        self.vocab = np.zeros(V)
+        self.vocab = np.zeros(V)  # hacky workaround to create placeholder value
         self.orig_vocab_size = V
 
     def preprocess(self, out, **params):
@@ -459,7 +459,7 @@ def prepare_dataset(dataset, out, vocab_size, **params):
         assert vocab_size == None
 
         print("Preparing data...")
-        all_data = TextRCV1_Vectors(subset="all")  # TODO: shuffle=False? Chronological split violated?
+        all_data = TextRCV1_Vectors(subset="all")
         all_data.preprocess(out="tfidf", **params)
 
         # Split train/test set
