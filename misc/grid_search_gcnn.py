@@ -91,8 +91,7 @@ def run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _dropout):
 
             # Output directory for models and summaries
             timestamp = str(int(time.time()))
-            out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", "RCV1-Custom", model_name,
-                                                   timestamp))
+            out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", "RCV1", model_name, timestamp))
 
             # Train and test model
             max_accuracy = train_and_test(sess, gcnn, x_train, y_train, x_valid, y_valid, learning_rate,
@@ -104,7 +103,7 @@ def run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _dropout):
 # Data Preparation
 # ==================================================
 
-train, test = data.load_dataset("RCV1-Custom", out="tfidf", vocab_size=10000)
+train, test = data.load_dataset("RCV1", out="tfidf", vocab_size=10000)
 del test
 
 x_train = train.data.astype(np.float32)

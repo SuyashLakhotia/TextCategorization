@@ -10,7 +10,7 @@ from scipy.sparse import csr_matrix, vstack
 
 
 AVAILABLE_DATASETS = ["20 Newsgroups", "RT Polarity", "RCV1-Vectors-Original", "RCV1-Vectors-Custom",
-                      "RCV1-Custom"]
+                      "RCV1"]
 DEFAULT_VOCAB_SIZES = [10000, 5000, None, None,
                        2000]
 DEFAULT_SEQ_LENS = [1000, 56, None, None,
@@ -471,7 +471,7 @@ def prepare_dataset(dataset, out, vocab_size, **params):
         split_index = all_data.data.shape[0] // 2  # according to Bruna's paper & Hinton's dropout paper
         train.data, test.data = all_data.data[:split_index], all_data.data[split_index:]
         train.labels, test.labels = all_data.labels[:split_index], all_data.labels[split_index:]
-    elif dataset == "RCV1-Custom":
+    elif dataset == "RCV1":
         print("Preparing data...")
         all_data = TextRCV1()
         all_data.preprocess(out=out, vocab_size=vocab_size, **params)
