@@ -20,7 +20,6 @@ class TextDataset(object):
         """
         Tokenization & string cleaning.
         """
-        # TODO: NLP preprocessing (use nltk?). Stemming, lemmatization etc.
         for i, string in enumerate(self.documents):
             string = re.sub(r"[^A-Za-z0-9(),!?'$]", " ", string)
             string = re.sub(r"(\d+)", " NUM ", string)

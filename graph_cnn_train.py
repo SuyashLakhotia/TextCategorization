@@ -155,10 +155,6 @@ with tf.Graph().as_default():
                         l2_reg_lambda=l2_reg_lambda)
 
         # Convert sparse matrices to arrays
-        # TODO: Is there a workaround for this? Doesn't seem memory efficient.
-        # TODO: https://github.com/tensorflow/tensorflow/issues/342#issuecomment-160354041
-        # TODO: https://github.com/tensorflow/tensorflow/issues/342#issuecomment-273463729
-        # TODO: https://stackoverflow.com/questions/37001686/using-sparsetensor-as-a-trainable-variable
         x_train = np.squeeze([x_i.toarray() for x_i in x_train])
         x_test = np.squeeze([x_i.toarray() for x_i in x_test])
 
