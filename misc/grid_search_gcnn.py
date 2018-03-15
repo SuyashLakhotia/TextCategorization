@@ -69,6 +69,8 @@ def run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _dropout):
     # ==================================================
 
     with tf.Graph().as_default():
+        tf.set_random_seed(42)  # set random seed for consistent initialization(s)
+
         session_conf = tf.ConfigProto(allow_soft_placement=True,
                                       log_device_placement=False)
         sess = tf.Session(config=session_conf)
