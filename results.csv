@@ -24,7 +24,7 @@
 "RCV1-Vectors-Original","multinomial_nb","0.770971877","{format: 'tfidf', vocab_size: 47236}","{alpha: 0.01}","-","-","35bdb3c","1518630908"
 "RCV1-Vectors-Custom","linear_svc","0.911881150","{format: 'tfidf', vocab_size: 47236}","{C: 1.0}","-","-","35bdb3c","1518630986"
 "RCV1-Vectors-Custom","multinomial_nb","0.840288749","{format: 'tfidf', vocab_size: 47236}","{alpha: 0.01}","-","-","35bdb3c","1518630986"
-"RCV1-Vectors-Custom","mlp","0.912052453","{format: 'tfidf', vocab_size: 47236}","{layers: []}","{learning_rate: 0.001, dropout: 0.5, l2_reg: 0.0, batch_size: 64, epochs: 18}","-","d8cd577","1516927552"
+"RCV1-Vectors-Custom","softmax","0.912052453","{format: 'tfidf', vocab_size: 47236}","{layers: []}","{learning_rate: 0.001, dropout: 0.5, l2_reg: 0.0, batch_size: 64, epochs: 18}","-","d8cd577","1516927552"
 "RCV1-Vectors-Custom","mlp","0.913779795","{format: 'tfidf', vocab_size: 47236}","{layers: [1000]}","{learning_rate: 0.001, dropout: 0.5, l2_reg: 0.0, batch_size: 64, epochs: 8.4}","-","d8cd577","1516927695"
 "RCV1-Custom","linear_svc","0.863858300","{format: 'count', vocab_size: 2000}","{C: 1.0}","-","-","d47e4d0","1518694581"
 "RCV1-Custom","multinomial_nb","0.814551667","{format: 'count', vocab_size: 2000}","{alpha: 0.01}","-","-","d47e4d0","1518694581"
