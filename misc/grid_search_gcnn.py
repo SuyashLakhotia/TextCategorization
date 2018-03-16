@@ -14,7 +14,6 @@ import scipy.sparse
 sys.path.insert(0, os.path.abspath(''))
 
 import data
-import utils
 from lib_gcnn import graph, coarsening
 from graph_cnn import GraphCNN
 from train import train_and_test
