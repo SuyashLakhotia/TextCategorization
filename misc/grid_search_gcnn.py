@@ -29,6 +29,10 @@ parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups", choice
 parser.add_argument("--vocab_size", type=int, default=None,
                     help="Vocabulary size (default: None [see data.py])")
 
+parser.add_argument("--test", action="store_false", dest="validation",
+                    help="Include this flag if models should be tuned on the test set instead.")
+parser.set_defaults(validation=True)
+
 args = parser.parse_args()
 
 
@@ -119,15 +123,20 @@ def run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _num_edges, _
 # ==================================================
 
 train, test = data.load_dataset(args.dataset, out="tfidf", vocab_size=10000)
-del test
 
 x_train = train.data.astype(np.float32)
 y_train = train.labels
 
-# Split training set & validation set
-validation_index = -1 * int(0.1 * float(len(y_train)))
-x_train, x_valid = x_train[:validation_index], x_train[validation_index:]
-y_train, y_valid = y_train[:validation_index], y_train[validation_index:]
+if args.validation:
+    del test  # don't need this anymore
+
+    # Split training set & validation set
+    validation_index = -1 * int(0.1 * float(len(y_train)))
+    x_train, x_valid = x_train[:validation_index], x_train[validation_index:]
+    y_train, y_valid = y_train[:validation_index], y_train[validation_index:]
+else:
+    x_valid = test.data.astype(np.float32)
+    y_valid = test.labels
 
 # Construct reverse lookup vocabulary
 reverse_vocab = {w: i for i, w in enumerate(train.vocab)}
