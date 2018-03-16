@@ -1,10 +1,11 @@
+# NOTE: Run from root directory of repository
+
 import argparse
 import sys
 import os
 import collections
 import time
 
-# NOTE: Run from root directory of repository
 sys.path.insert(0, os.path.abspath(''))
 
 import numpy as np

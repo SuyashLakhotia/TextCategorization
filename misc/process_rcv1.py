@@ -1,3 +1,5 @@
+# NOTE: Run from root directory of repository
+
 import os
 import html
 import pickle
@@ -20,7 +22,7 @@ def save_data(data_counter, documents, labels):
 pkl_counter = 0
 
 # Make directories for pickles
-out_dir = os.path.abspath(os.path.join(os.path.curdir, "data", "RCV1", "pickles", "RCV1-v2_Sparse"))
+out_dir = os.path.abspath(os.path.join(os.path.curdir, "data", "RCV1", "pickles", "RCV1-v2_Sparse1"))
 if not os.path.exists(out_dir):
     os.makedirs(out_dir)
 

@@ -1,3 +1,5 @@
+# NOTE: Run from root directory of repository
+
 import sys
 import os
 import time
@@ -8,7 +10,6 @@ import numpy as np
 import tensorflow as tf
 import scipy.sparse
 
-# NOTE: Run from root directory of repository
 sys.path.insert(0, os.path.abspath(''))
 
 import data
