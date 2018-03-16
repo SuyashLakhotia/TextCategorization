@@ -165,7 +165,7 @@ for _num_edges, _filter_size, _num_features in product(num_edges_arr, filter_siz
     timestamp, max_accuracy = run_experiment(x_train, y_train, x_valid, y_valid, embeddings,
                                              _num_edges, _filter_size, _num_features)
     acc_dict["{} {} {}".format(_num_edges, _filter_size, _num_features)] = (max_accuracy, timestamp)
-    with open("output.txt", "a") as file:
+    with open("output_gcnn.txt", "a") as file:
         file.write("{} {} {} {} {}\n".format(_num_edges, _filter_size, _num_features,
                                              max_accuracy, timestamp))
 
