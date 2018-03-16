@@ -1,5 +1,6 @@
 # NOTE: Run from root directory of repository
 
+import argparse
 import sys
 import os
 import time
@@ -19,10 +20,20 @@ from graph_cnn import GraphCNN
 from train import train_and_test
 
 
-def run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _dropout):
-    # Parameters
-    # ==================================================
+# Parse Arguments
+# ==================================================
 
+parser = argparse.ArgumentParser()
+
+parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups", choices=data.AVAILABLE_DATASETS,
+                    help="Dataset name (default: 20 Newsgroups)")
+parser.add_argument("--vocab_size", type=int, default=None,
+                    help="Vocabulary size (default: None [see data.py])")
+
+args = parser.parse_args()
+
+
+def run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _dropout):
     # Feature graph parameters
     num_edges = 16
     coarsening_levels = 0
@@ -75,6 +86,7 @@ def run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _dropout):
         session_conf = tf.ConfigProto(allow_soft_placement=True,
                                       log_device_placement=False)
         sess = tf.Session(config=session_conf)
+
         with sess.as_default():
             # Init model
             gcnn = GraphCNN(filter_name=filter_name,
@@ -94,7 +106,8 @@ def run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _dropout):
 
             # Output directory for models and summaries
             timestamp = str(int(time.time()))
-            out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", "RCV1", model_name, timestamp))
+            out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", args.dataset, model_name,
+                                                   timestamp))
 
             # Train and test model
             max_accuracy = train_and_test(sess, gcnn, x_train, y_train, x_valid, y_valid, learning_rate,
@@ -106,7 +119,7 @@ def run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _dropout):
 # Data Preparation
 # ==================================================
 
-train, test = data.load_dataset("RCV1", out="tfidf", vocab_size=10000)
+train, test = data.load_dataset(args.dataset, out="tfidf", vocab_size=10000)
 del test
 
 x_train = train.data.astype(np.float32)
