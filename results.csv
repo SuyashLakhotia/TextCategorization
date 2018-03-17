@@ -2,6 +2,7 @@
 "20 Newsgroups","linear_svc","0.697226938","{format: 'tfidf', vocab_size: 10000}","{C: 1.0}","-","-","383e377","1518630749"
 "20 Newsgroups","multinomial_nb","0.695387663","{format: 'tfidf', vocab_size: 10000}","{alpha: 0.01}","-","-","383e377","1518630749"
 "20 Newsgroups","mlp","0.709252954","{format: 'tfidf', vocab_size: 10000}","{layers: []}","{learning_rate: 0.001, dropout: 0.5, l2_reg: 0.0, batch_size: 64, epochs: 200}","-","3f55b77","1514560051"
+"20 Newsgroups","mlp","0.728211658","{format: 'tfidf', vocab_size: 10000}","{layers: [100]}","{learning_rate: 0.001, dropout: 0.5, l2_reg: 0.0, batch_size: 64, epochs: 200}","-","0ddb83d","1514615785"
 "20 Newsgroups","mlp","0.730758347","{format: 'tfidf', vocab_size: 10000}","{layers: [360]}","{learning_rate: 0.001, dropout: 0.5, l2_reg: 0.0, batch_size: 64, epochs: 200}","-","0ddb83d","1514562275"
 "20 Newsgroups","mlp","0.728211658","{format: 'tfidf', vocab_size: 10000}","{layers: [2500]}","{learning_rate: 0.001, dropout: 0.5, l2_reg: 0.0, batch_size: 64, epochs: 200}","-","0ddb83d","1514598334"
 "20 Newsgroups","mlp","0.70090549","{format: 'tfidf', vocab_size: 10000}","{layers: [2500, 500]}","{learning_rate: 0.001, dropout: 0.5, l2_reg: 0.0, batch_size: 64, epochs: 200}","-","0ddb83d","1514566061"
