@@ -83,7 +83,7 @@ x_test = test.data.astype(np.int32)
 y_train = train.labels
 y_test = test.labels
 
-# Correct sequence length if seq_len was originally None
+# Overwrite sequence length if seq_len was originally None
 seq_len = x_train.shape[1]
 
 # Construct reverse lookup vocabulary
