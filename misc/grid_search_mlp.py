@@ -26,6 +26,8 @@ parser.add_argument("-d", "--dataset", type=str, default="20 Newsgroups", choice
 parser.add_argument("--vocab_size", type=int, default=None,
                     help="Vocabulary size (default: None [see data.py])")
 
+parser.add_argument("--epochs", type=int, default=100, help="No. of epochs (default: 100)")
+
 parser.add_argument("--test", action="store_false", dest="validation",
                     help="Include this flag if models should be tuned on the test set instead.")
 parser.set_defaults(validation=True)
@@ -41,7 +43,7 @@ def run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _layers):
     # Training parameters
     learning_rate = 1e-3  # learning rate
     batch_size = 64  # batch size
-    num_epochs = 100  # no. of training epochs
+    num_epochs = args.epochs  # no. of training epochs
 
     # Regularization parameters
     dropout_keep_prob = 0.5  # dropout keep probability
