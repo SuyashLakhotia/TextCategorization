@@ -3,7 +3,7 @@ import tensorflow as tf
 import numpy as np
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-f", "--filepath", type=str, help="Filepath to checkpoint.")
+parser.add_argument("-f", "--filepath", type=str, help="Filepath to checkpoint.")  # ...checkpoints/model-XYZ
 args = parser.parse_args()
 
 print("Loading checkpoint...")
