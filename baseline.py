@@ -63,20 +63,26 @@ timestamp = str(int(time.time()))
 # Linear Support Vector Classifier
 if args.model == "all" or args.model == "linear_svc":
     svm_clf = LinearSVC(C=args.C)
+    start = time.time()
     svm_clf.fit(x_train, y_train)
+    train_time = time.time() - start
     predicted = svm_clf.predict(x_test)
     svm_acc = np.mean(predicted == y_test)
     utils.print_result(args.dataset, "linear_svc", svm_acc, data_str, timestamp,
                        hyperparams="{{C: {}}}".format(args.C))
+    print("Time Taken: {:g}".format(train_time))
 
 # Multinomial Naive Bayes Classifier
 if args.model == "all" or args.model == "multinomial_nb":
     bayes_clf = MultinomialNB(alpha=args.alpha)
+    start = time.time()
     bayes_clf.fit(x_train, y_train)
+    train_time = time.time() - start
     predicted = bayes_clf.predict(x_test)
     bayes_acc = np.mean(predicted == y_test)
     utils.print_result(args.dataset, "multinomial_nb", bayes_acc, data_str, timestamp,
                        hyperparams="{{alpha: {}}}".format(args.alpha))
+    print("Time Taken: {:g}".format(train_time))
 
 # Save models as pickles
 if args.save:
