@@ -11,7 +11,6 @@ sys.path.insert(0, os.path.abspath(''))
 import numpy as np
 from scipy.sparse import vstack
 from sklearn.svm import LinearSVC
-from sklearn.naive_bayes import MultinomialNB
 
 import data
 import utils
