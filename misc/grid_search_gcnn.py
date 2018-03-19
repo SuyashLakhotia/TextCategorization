@@ -92,6 +92,8 @@ def run_experiment(x_train, y_train, x_valid, y_valid, embeddings, _num_edges, _
                                       log_device_placement=False)
         sess = tf.Session(config=session_conf)
 
+        tf.set_random_seed(42)  # set random seed for consistent results
+
         with sess.as_default():
             # Init model
             gcnn = GraphCNN(filter_name=filter_name,
