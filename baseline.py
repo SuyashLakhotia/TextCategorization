@@ -28,7 +28,7 @@ parser.add_argument("--model", type=str, default="all", choices=["all", "linear_
 
 parser.add_argument("--LSVC-C", type=float, default=1.0, dest="C",
                     help="LinearSVC: Penalty parameter C of the error term.")
-parser.add_argument("--MNB-a", type=float, default=0.01, dest="alpha",
+parser.add_argument("--MNB-alpha", type=float, default=0.01, dest="alpha",
                     help="MultinomialNB: Additive smoothing parameter (0 for no smoothing).")
 
 parser.add_argument("--no-save", action="store_false", dest="save",
